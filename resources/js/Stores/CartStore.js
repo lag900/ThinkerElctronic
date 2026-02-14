@@ -72,7 +72,9 @@ export const cart = reactive({
                 ourProducts: 'Our Products',
                 discover: 'Discover our latest innovations in smart technology.',
                 filter: 'Filter by Price',
-                categories: 'Product Categories'
+                categories: 'Product Categories',
+                lmsPointsDesc: 'These points are used in the smart printing system at Borg El Arab Technological University in Alexandria - and to pay for some products displayed on the university\'s platform.',
+                lmsPointsDescAr: 'يتم استخدام هذه النقاط في نظام الطباعة الذكية بجامعة برج العرب التكنولوجية بالإسكندرية - ودفع تكلفة بعض المنتجات المعروضة على المنصة الخاصة بالجامعة.'
             },
             ar: {
                 home: 'الرئيسية',
@@ -101,7 +103,9 @@ export const cart = reactive({
                 ourProducts: 'منتجاتنا',
                 discover: 'اكتشف أحدث ابتكاراتنا في التكنولوجيا الذكية.',
                 filter: 'تصفية حسب السعر',
-                categories: 'أقسام المنتجات'
+                categories: 'أقسام المنتجات',
+                lmsPointsDesc: 'يتم استخدام هذه النقاط في نظام الطباعة الذكية بجامعة برج العرب التكنولوجية بالإسكندرية - ودفع تكلفة بعض المنتجات المعروضة على المنصة الخاصة بالجامعة.',
+                lmsPointsDescAr: 'يتم استخدام هذه النقاط في نظام الطباعة الذكية بجامعة برج العرب التكنولوجية بالإسكندرية - ودفع تكلفة بعض المنتجات المعروضة على المنصة الخاصة بالجامعة.'
             }
         };
         return translations[this.language][key] || key;

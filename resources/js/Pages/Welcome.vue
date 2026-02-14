@@ -1,6 +1,6 @@
 <script setup>
-import { Head, Link, usePage } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
+import { Head, Link } from '@inertiajs/vue3';
+import { ref } from 'vue';
 import Navbar from '@/Components/Thinker/Navbar.vue';
 import Hero from '@/Components/Thinker/Hero.vue';
 import ProductCard from '@/Components/Thinker/ProductCard.vue';
@@ -27,8 +27,6 @@ const togglePackage = (pkg) => {
 };
 
 const isSelected = (pkg) => selectedPackages.value.some(p => p.id === pkg.id);
-
-const auth = computed(() => usePage().props.auth);
 
 const isCartOpen = ref(false);
 
@@ -154,6 +152,8 @@ const toggleCart = () => {
                 <div class="text-center mb-16 space-y-4">
                     <h2 class="text-5xl font-black text-black tracking-tighter uppercase">Batu LMS Points</h2>
                     <p class="text-gray-500 max-w-2xl mx-auto text-lg">Purchase points for your LMS account</p>
+                    <p class="text-gray-600 max-w-2xl mx-auto text-base">These points are used in the smart printing system at Borg El Arab Technological University in Alexandria - and to pay for some products displayed on the university's platform.</p>
+                    <p class="text-gray-600 max-w-2xl mx-auto text-base text-right" dir="rtl">يتم استخدام هذه النقاط في نظام الطباعة الذكية بجامعة برج العرب التكنولوجية بالإسكندرية - ودفع تكلفة بعض المنتجات المعروضة على المنصة الخاصة بالجامعة.</p>
                 </div>
 
                 <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -197,9 +197,6 @@ const toggleCart = () => {
                     </div>
                 </div>
 
-                <p v-if="auth?.user" class="mt-8 text-center text-sm text-gray-500">
-                    <Link :href="route('lms-packages.index')" class="text-red-600 hover:underline font-medium">Manage point packages</Link> (add, edit, delete)
-                </p>
             </div>
         </section>
 
