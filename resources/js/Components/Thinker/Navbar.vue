@@ -21,9 +21,10 @@ const emit = defineEmits(['open-cart']);
                 <div class="hidden md:flex space-x-8 items-center">
                     <Link href="/" class="text-gray-900 hover:text-red-600 font-medium transition-colors">{{ cart.t('home') }}</Link>
                     <Link :href="route('shop')" class="text-gray-900 hover:text-red-600 font-medium transition-colors">{{ cart.t('shop') }}</Link>
+                    <Link href="/#lms-points" class="text-gray-900 hover:text-red-600 font-medium transition-colors">Batu LMS Points</Link>
                     <a href="#" class="text-gray-900 hover:text-red-600 font-medium transition-colors">{{ cart.t('printing') }}</a>
                     <a href="#" class="text-gray-900 hover:text-red-600 font-medium transition-colors">{{ cart.t('solutions') }}</a>
-                    <a href="#" class="text-gray-900 hover:text-red-600 font-medium transition-colors">{{ cart.t('contact') }}</a>
+                    <Link :href="route('contact')" class="text-gray-900 hover:text-red-600 font-medium transition-colors">{{ cart.t('contact') }}</Link>
                     
                     <!-- Language Toggle -->
                     <button @click="cart.toggleLanguage" class="p-2 text-sm font-bold border rounded-full hover:bg-gray-50 transition-colors uppercase">
@@ -59,9 +60,10 @@ const emit = defineEmits(['open-cart']);
             <div class="px-2 pt-2 pb-3 space-y-1">
                 <Link href="/" class="block px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-50">{{ cart.t('home') }}</Link>
                 <Link :href="route('shop')" class="block px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-50">{{ cart.t('shop') }}</Link>
+                <Link href="/#lms-points" @click="isMenuOpen = false" class="block px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-50">Batu LMS Points</Link>
                 <a href="#" class="block px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-50">{{ cart.t('printing') }}</a>
                 <a href="#" class="block px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-50">{{ cart.t('solutions') }}</a>
-                <a href="#" class="block px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-50">{{ cart.t('contact') }}</a>
+                <Link :href="route('contact')" @click="isMenuOpen = false" class="block px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-50">{{ cart.t('contact') }}</Link>
                 <button @click="$emit('open-cart'); isMenuOpen = false" class="w-full text-left block px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-50">
                     {{ cart.t('cart') }} ({{ cart.count }})
                 </button>

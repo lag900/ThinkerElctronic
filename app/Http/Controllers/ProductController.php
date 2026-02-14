@@ -6,14 +6,24 @@ use Illuminate\Http\Request;
 
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\LmsPointPackage;
 use Inertia\Inertia;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $lmsPackages = LmsPointPackage::orderBy('order')->orderBy('points')->get()
+            ->map(fn ($pkg) => [
+                'id' => $pkg->id,
+                'points' => $pkg->points,
+                'price' => $pkg->price,
+                'paymentLink' => $pkg->payment_link,
+            ]);
+
         return Inertia::render('Welcome', [
             'products' => Product::with('category')->take(3)->get(),
+            'lmsPackages' => $lmsPackages,
         ]);
     }
 

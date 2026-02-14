@@ -1,6 +1,6 @@
 <script setup>
-import { Head, Link } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { Head, Link, usePage } from '@inertiajs/vue3';
+import { ref, computed } from 'vue';
 import Navbar from '@/Components/Thinker/Navbar.vue';
 import Hero from '@/Components/Thinker/Hero.vue';
 import ProductCard from '@/Components/Thinker/ProductCard.vue';
@@ -8,8 +8,27 @@ import CartModal from '@/Components/Thinker/CartModal.vue';
 import { cart } from '@/Stores/CartStore';
 
 const props = defineProps({
-    products: Array
+    products: Array,
+    lmsPackages: {
+        type: Array,
+        default: () => []
+    }
 });
+
+const selectedPackages = ref([]);
+
+const togglePackage = (pkg) => {
+    const idx = selectedPackages.value.findIndex(p => p.id === pkg.id);
+    if (idx >= 0) {
+        selectedPackages.value.splice(idx, 1);
+    } else {
+        selectedPackages.value.push(pkg);
+    }
+};
+
+const isSelected = (pkg) => selectedPackages.value.some(p => p.id === pkg.id);
+
+const auth = computed(() => usePage().props.auth);
 
 const isCartOpen = ref(false);
 
@@ -129,6 +148,61 @@ const toggleCart = () => {
             </div>
         </section>
 
+        <!-- Batu LMS Points -->
+        <section id="lms-points" class="py-24 bg-gray-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16 space-y-4">
+                    <h2 class="text-5xl font-black text-black tracking-tighter uppercase">Batu LMS Points</h2>
+                    <p class="text-gray-500 max-w-2xl mx-auto text-lg">Purchase points for your LMS account</p>
+                </div>
+
+                <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div
+                        v-for="pkg in lmsPackages"
+                        :key="pkg.id"
+                        @click="togglePackage(pkg)"
+                        :class="[
+                            'relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300',
+                            isSelected(pkg)
+                                ? 'border-red-600 bg-red-50 shadow-lg'
+                                : 'border-gray-200 bg-white hover:border-red-300 hover:shadow-md'
+                        ]"
+                    >
+                        <div class="flex items-start justify-between mb-4">
+                            <input
+                                type="checkbox"
+                                :checked="isSelected(pkg)"
+                                class="h-5 w-5 rounded border-gray-300 text-red-600 focus:ring-red-600 cursor-pointer"
+                                @change="togglePackage(pkg)"
+                            />
+                            <span class="text-2xl font-black text-red-600">{{ pkg.points }} pts</span>
+                        </div>
+                        <p class="text-lg font-bold text-black mb-4">{{ pkg.price }}</p>
+                        <a
+                            v-if="pkg.paymentLink"
+                            :href="pkg.paymentLink"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            @click.stop
+                            class="inline-flex items-center justify-center w-full px-4 py-3 bg-red-600 text-white font-bold rounded-full hover:bg-black transition-all duration-300"
+                        >
+                            Pay Now
+                        </a>
+                        <span
+                            v-else
+                            class="inline-flex items-center justify-center w-full px-4 py-3 bg-gray-300 text-gray-500 font-bold rounded-full cursor-not-allowed"
+                        >
+                            Link not set
+                        </span>
+                    </div>
+                </div>
+
+                <p v-if="auth?.user" class="mt-8 text-center text-sm text-gray-500">
+                    <Link :href="route('lms-packages.index')" class="text-red-600 hover:underline font-medium">Manage point packages</Link> (add, edit, delete)
+                </p>
+            </div>
+        </section>
+
         <!-- Newsletter -->
         <section class="py-24 bg-black text-white relative overflow-hidden">
             <div class="absolute top-0 right-0 w-96 h-96 bg-red-600/20 rounded-full blur-[120px]"></div>
@@ -149,6 +223,12 @@ const toggleCart = () => {
                     <div class="flex items-center space-x-2">
                         <img src="/images/logo.png" class="w-8 h-8 object-contain" alt="Thinker" />
                         <span class="text-xl font-black tracking-tighter uppercase">Thinker</span>
+                    </div>
+                    <div class="flex flex-wrap justify-center gap-6 text-sm">
+                        <Link :href="route('privacy')" class="text-gray-500 hover:text-red-600 transition-colors">Privacy Policy</Link>
+                        <Link :href="route('terms')" class="text-gray-500 hover:text-red-600 transition-colors">Terms of Service</Link>
+                        <Link :href="route('refund-policy')" class="text-gray-500 hover:text-red-600 transition-colors">Refund Policy</Link>
+                        <Link :href="route('contact')" class="text-gray-500 hover:text-red-600 transition-colors">Contact</Link>
                     </div>
                     <p class="text-gray-400 text-sm">
                         &copy; 2026 Thinker Inc. {{ cart.t('slogan') }}
