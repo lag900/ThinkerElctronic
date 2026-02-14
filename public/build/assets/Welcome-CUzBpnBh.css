@@ -1,0 +1,1 @@
+@import"https://fonts.googleapis.com/css2?family=Outfit:wght@100;400;700;900&display=swap";:root{font-family:Outfit,sans-serif}@keyframes pulse-slow{0%,to{transform:scale(1.05);opacity:.15}50%{transform:scale(1.1);opacity:.25}}.animate-pulse-slow{animation:pulse-slow 10s ease-in-out infinite}
