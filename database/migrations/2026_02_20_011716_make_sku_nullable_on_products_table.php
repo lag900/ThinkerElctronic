@@ -12,7 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->string('sku')->nullable()->change();
+            if (Schema::hasColumn('products', 'sku')) {
+                $table->string('sku')->nullable()->change();
+            } else {
+                $table->string('sku')->nullable()->after('name');
+            }
         });
     }
 

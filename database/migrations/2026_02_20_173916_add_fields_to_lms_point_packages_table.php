@@ -12,9 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('lms_point_packages', function (Blueprint $table) {
-            $table->string('name')->nullable()->after('id');
-            $table->boolean('active')->default(true)->after('payment_link');
-            $table->renameColumn('order', 'sort_order');
+            if (!Schema::hasColumn('lms_point_packages', 'name')) {
+                $table->string('name')->nullable()->after('id');
+            }
+            if (!Schema::hasColumn('lms_point_packages', 'active')) {
+                $table->boolean('active')->default(true)->after('payment_link');
+            }
+            if (!Schema::hasColumn('lms_point_packages', 'sort_order') && Schema::hasColumn('lms_point_packages', 'order')) {
+                $table->renameColumn('order', 'sort_order');
+            }
         });
     }
 

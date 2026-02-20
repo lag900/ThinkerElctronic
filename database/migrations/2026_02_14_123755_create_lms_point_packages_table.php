@@ -11,14 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('lms_point_packages', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedInteger('points');
-            $table->string('price'); // e.g. "25 جنيه"
-            $table->string('payment_link')->nullable();
-            $table->unsignedInteger('order')->default(0);
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('lms_point_packages')) {
+            Schema::create('lms_point_packages', function (Blueprint $table) {
+                $table->id();
+                $table->unsignedInteger('points');
+                $table->string('price'); // e.g. "25 جنيه"
+                $table->string('payment_link')->nullable();
+                $table->unsignedInteger('order')->default(0);
+                $table->timestamps();
+            });
+        }
     }
 
     /**
