@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class LmsPointPackage extends Model
 {
-    protected $fillable = ['points', 'price', 'payment_link', 'order'];
+    protected $fillable = ['name', 'points', 'price', 'payment_link', 'active', 'sort_order'];
 }

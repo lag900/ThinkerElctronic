@@ -2,248 +2,124 @@
 import { Head, Link } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import Navbar from '@/Components/Thinker/Navbar.vue';
-import Hero from '@/Components/Thinker/Hero.vue';
 import ProductCard from '@/Components/Thinker/ProductCard.vue';
 import CartModal from '@/Components/Thinker/CartModal.vue';
+import Footer from '@/Components/Thinker/Footer.vue';
 import { cart } from '@/Stores/CartStore';
 
 const props = defineProps({
     products: Array,
+    categories: Array,
     lmsPackages: {
         type: Array,
         default: () => []
     }
 });
 
-const selectedPackages = ref([]);
-
-const togglePackage = (pkg) => {
-    const idx = selectedPackages.value.findIndex(p => p.id === pkg.id);
-    if (idx >= 0) {
-        selectedPackages.value.splice(idx, 1);
-    } else {
-        selectedPackages.value.push(pkg);
-    }
-};
-
-const isSelected = (pkg) => selectedPackages.value.some(p => p.id === pkg.id);
-
 const isCartOpen = ref(false);
+const toggleCart = () => isCartOpen.value = !isCartOpen.value;
 
-const toggleCart = () => {
-    isCartOpen.value = !isCartOpen.value;
+const formatNumber = (val) => {
+    return new Intl.NumberFormat(cart.language === 'ar' ? 'ar-EG' : 'en-US').format(val);
 };
-
 </script>
 
 <template>
-    <Head :title="cart.t('thinking') + ' - ' + cart.t('slogan')" />
+    <Head title="Thinker - Intelligence Hub" />
     
-    <div class="bg-white min-h-screen font-sans selection:bg-red-600 selection:text-white">
-        <!-- Navigation -->
+    <div class="bg-gray-50 min-h-screen font-sans" :dir="cart.language === 'ar' ? 'rtl' : 'ltr'">
         <Navbar @open-cart="toggleCart" />
 
-        <!-- Hero Section -->
-        <section class="relative min-h-screen flex items-center pt-20 overflow-hidden bg-white">
-            <div class="absolute inset-0 z-0">
-                <img src="/images/hero_bg.png" alt="Futuristic Tech" class="w-full h-full object-cover opacity-20 scale-105 animate-pulse-slow" />
-                <div class="absolute inset-0 bg-gradient-to-b from-white via-transparent to-white"></div>
+        <!-- Simple Hero -->
+        <header class="pt-32 pb-20 bg-white border-b border-gray-100">
+            <div class="max-w-7xl mx-auto px-6 sm:px-8">
+                <div class="max-w-3xl space-y-8">
+                    <h1 class="text-6xl sm:text-8xl font-black text-black leading-tight uppercase tracking-tighter">
+                        Smart <span class="text-[#ff2d55]">Thinking.</span><br/>
+                        Smart Systems.
+                    </h1>
+                    <p class="text-xl text-gray-500 leading-relaxed font-medium">
+                        {{ cart.language === 'ar' ? 'عالم من الحلول التقنية والهندسية المصممة خصيصاً لاحتياجاتك.' : 'A world of technical and engineering solutions tailored specifically to your needs.' }}
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <Link :href="route('shop')" class="bg-black text-white px-10 py-5 rounded-2xl font-bold uppercase tracking-widest hover:bg-gray-800 transition-all">
+                            {{ cart.t('shopNow') }}
+                        </Link>
+                    </div>
+                </div>
             </div>
+        </header>
 
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-                <div class="grid lg:grid-cols-2 gap-12 items-center">
-                    <div class="space-y-8 animate-in slide-in-from-left duration-1000">
-                        <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-red-50 border border-red-100 text-red-600 text-sm font-bold tracking-wider uppercase">
-                            <span class="relative flex h-2 w-2">
-                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                <span class="relative inline-flex rounded-full h-2 w-2 bg-red-600"></span>
-                            </span>
-                            <span>{{ cart.t('innovation') }}</span>
+        <!-- Category Grid -->
+        <section v-if="categories && categories.length > 0" class="py-24 bg-white">
+            <div class="max-w-7xl mx-auto px-6 sm:px-8">
+                <h2 class="text-3xl font-black text-black uppercase tracking-tighter mb-12">Browse Categories</h2>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <Link 
+                        v-for="cat in categories" 
+                        :key="cat.id"
+                        :href="route('shop', { category: cat.id })"
+                        class="group bg-gray-50 p-8 rounded-3xl border border-gray-100 hover:bg-white hover:shadow-xl transition-all duration-300 text-center"
+                    >
+                        <div class="w-20 h-20 mx-auto mb-6 bg-white rounded-2xl p-4 shadow-sm group-hover:scale-110 transition-transform">
+                            <img v-if="cat.image" :src="cat.image" class="w-full h-full object-contain">
+                            <div v-else class="w-full h-full flex items-center justify-center text-gray-200 text-2xl">📦</div>
                         </div>
-                        
-                        <h1 class="text-6xl md:text-8xl font-black text-black leading-tight tracking-tighter">
-                            {{ cart.t('smart') }} <span class="text-red-600 italic">{{ cart.t('thinking') }}</span><br/>
-                            {{ cart.t('smart') }} Systems.
-                        </h1>
-                        
-                        <p class="text-xl text-gray-600 max-w-lg leading-relaxed">
-                            We design the future today. Discover our range of high-end electronics, software solutions, and cutting-edge smart systems built for the next generation of thinkers.
+                        <h3 class="text-sm font-black text-black uppercase tracking-tight">{{ cat.name }}</h3>
+                        <p class="mt-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                            {{ formatNumber(cat.products_count || 0) }} Units
                         </p>
-                        
-                        <div class="flex flex-col sm:flex-row gap-4 pt-4">
-                            <Link :href="route('shop')" class="px-8 py-4 bg-red-600 text-white font-bold rounded-full hover:bg-black transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl flex items-center justify-center space-x-2 group">
-                                <span>{{ cart.t('shopNow') }}</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                                </svg>
-                            </Link>
-                            <a href="#" class="px-8 py-4 border-2 border-black text-black font-bold rounded-full hover:bg-black hover:text-white transition-all duration-300 flex items-center justify-center">
-                                {{ cart.t('explore') }}
-                            </a>
-                        </div>
-                    </div>
-                    
-                    <div class="relative hidden lg:block animate-in zoom-in duration-1000 delay-300">
-                        <div class="relative z-10 transform hover:scale-105 transition-transform duration-700">
-                            <img src="/images/products/iot_device.png" alt="Thinker Tech" class="rounded-3xl shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] border-8 border-white" />
-                        </div>
-                    </div>
+                    </Link>
                 </div>
             </div>
         </section>
 
-        <!-- Featured Section -->
-        <section class="py-24 bg-gray-50 overflow-hidden">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="grid lg:grid-cols-2 gap-16 items-center">
-                    <div class="relative group" :class="cart.language === 'ar' ? 'order-last' : ''">
-                        <div class="absolute -inset-4 bg-gradient-to-r from-red-600 to-black rounded-3xl blur-2xl opacity-10 group-hover:opacity-20 transition-opacity duration-500"></div>
-                        <img src="/images/products/iot_device.png" alt="Advanced Electronics" class="relative rounded-3xl shadow-2xl transition-transform duration-700 group-hover:scale-[1.02]" />
-                    </div>
-                    
-                    <div class="space-y-8">
-                        <h2 class="text-4xl md:text-5xl font-black text-black tracking-tighter uppercase">
-                            {{ cart.t('hardware') }} <span class="text-red-600 italic">{{ cart.t('excellence') }}</span>
-                        </h2>
-                        <p class="text-lg text-gray-600 leading-relaxed">
-                            Our smart systems are built on a foundation of precision engineering and innovative design. From custom 3D printed components to complex integrated circuits, we deliver excellence in every layer.
-                        </p>
-                        <ul class="space-y-4">
-                            <li v-for="item in ['Custom PCB Design', '3D Prototyping', 'AI Integration', 'Smart Home Ecosystems']" :key="item" class="flex items-center space-x-3 text-black font-bold">
-                                <svg class="h-6 w-6 text-red-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
-                                </svg>
-                                <span>{{ item }}</span>
-                            </li>
-                        </ul>
-                    </div>
+        <!-- Featured Products -->
+        <section class="py-24 bg-gray-50">
+            <div class="max-w-7xl mx-auto px-6 sm:px-8">
+                <div class="flex items-end justify-between mb-12">
+                    <h2 class="text-3xl font-black text-black uppercase tracking-tighter">Featured Hardware</h2>
+                    <Link :href="route('shop')" class="text-sm font-bold text-[#ff2d55] hover:underline">View All -></Link>
                 </div>
-            </div>
-        </section>
-
-        <!-- Product Preview Section -->
-        <section id="shop" class="py-24 bg-white">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center mb-16 space-y-4">
-                    <h2 class="text-5xl font-black text-black tracking-tighter uppercase">{{ cart.t('ourProducts') }}</h2>
-                    <p class="text-gray-500 max-w-2xl mx-auto text-lg underline decoration-red-600 decoration-2 underline-offset-8">{{ cart.t('discover') }}</p>
-                </div>
-                
-                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                     <ProductCard 
                         v-for="product in products" 
                         :key="product.id" 
                         :product="product" 
                     />
                 </div>
-                
-                <div class="mt-16 text-center">
-                    <Link :href="route('shop')" class="inline-flex items-center space-x-4 group text-black font-black uppercase tracking-widest hover:text-red-600 transition-colors">
-                        <span>View All Products</span>
-                        <svg class="w-6 h-6 transform group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-                    </Link>
-                </div>
             </div>
         </section>
 
-        <!-- Batu LMS Points -->
-        <section id="lms-points" class="py-24 bg-gray-50">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center mb-16 space-y-4">
-                    <h2 class="text-5xl font-black text-black tracking-tighter uppercase">Batu LMS Points</h2>
-                    <p class="text-gray-500 max-w-2xl mx-auto text-lg">Purchase points for your LMS account</p>
-                    <p class="text-gray-600 max-w-2xl mx-auto text-base">These points are used in the smart printing system at Borg El Arab Technological University in Alexandria - and to pay for some products displayed on the university's platform.</p>
-                    <p class="text-gray-600 max-w-2xl mx-auto text-base text-right" dir="rtl">يتم استخدام هذه النقاط في نظام الطباعة الذكية بجامعة برج العرب التكنولوجية بالإسكندرية - ودفع تكلفة بعض المنتجات المعروضة على المنصة الخاصة بالجامعة.</p>
+        <!-- LMS Packages -->
+        <section class="py-24 bg-black text-white">
+            <div class="max-w-7xl mx-auto px-6 sm:px-8 text-center space-y-16">
+                <div class="max-w-2xl mx-auto space-y-4">
+                    <h2 class="text-5xl font-black tracking-tighter uppercase leading-none">
+                        BATU LMS <br/> <span class="text-[#ff2d55]">Access.</span>
+                    </h2>
+                    <p class="text-lg text-gray-400">Select your credit package to synchronize with the learning matrix.</p>
                 </div>
 
-                <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <div
                         v-for="pkg in lmsPackages"
                         :key="pkg.id"
-                        @click="togglePackage(pkg)"
-                        :class="[
-                            'relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300',
-                            isSelected(pkg)
-                                ? 'border-red-600 bg-red-50 shadow-lg'
-                                : 'border-gray-200 bg-white hover:border-red-300 hover:shadow-md'
-                        ]"
+                        class="p-12 bg-white/5 rounded-3xl border border-white/10 hover:border-[#ff2d55]/50 transition-all group"
                     >
-                        <div class="flex items-start justify-between mb-4">
-                            <input
-                                type="checkbox"
-                                :checked="isSelected(pkg)"
-                                class="h-5 w-5 rounded border-gray-300 text-red-600 focus:ring-red-600 cursor-pointer"
-                                @change="togglePackage(pkg)"
-                            />
-                            <span class="text-2xl font-black text-red-600">{{ pkg.points }} pts</span>
+                        <div class="text-5xl font-black tracking-tighter mb-4">{{ formatNumber(pkg.points) }}</div>
+                        <div class="text-[10px] font-bold text-[#ff2d55] uppercase tracking-[0.3em] mb-8">Points</div>
+                        <div class="w-full h-px bg-white/10 mb-8"></div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-2xl font-black">{{ formatNumber(pkg.price) }} EGP</span>
+                            <a v-if="pkg.paymentLink" :href="pkg.paymentLink" target="_blank" class="bg-white text-black px-6 py-3 rounded-xl font-bold text-[10px] uppercase hover:bg-[#ff2d55] hover:text-white transition-all">Buy</a>
                         </div>
-                        <p class="text-lg font-bold text-black mb-4">{{ pkg.price }}</p>
-                        <a
-                            v-if="pkg.paymentLink"
-                            :href="pkg.paymentLink"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            @click.stop
-                            class="inline-flex items-center justify-center w-full px-4 py-3 bg-red-600 text-white font-bold rounded-full hover:bg-black transition-all duration-300"
-                        >
-                            Pay Now
-                        </a>
-                        <span
-                            v-else
-                            class="inline-flex items-center justify-center w-full px-4 py-3 bg-gray-300 text-gray-500 font-bold rounded-full cursor-not-allowed"
-                        >
-                            Link not set
-                        </span>
                     </div>
                 </div>
-
             </div>
         </section>
 
-        <!-- Newsletter -->
-        <section class="py-24 bg-black text-white relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-96 h-96 bg-red-600/20 rounded-full blur-[120px]"></div>
-            <div class="max-w-7xl mx-auto px-4 text-center space-y-8 relative z-10">
-                <h2 class="text-4xl md:text-5xl font-black tracking-tighter uppercase leading-tight">
-                    {{ cart.t('stayAhead') }} <span class="text-red-600 italic">{{ cart.t('theFuture') }}</span>
-                </h2>
-                <button class="px-12 py-5 bg-red-600 hover:bg-white hover:text-black text-white font-black rounded-full transition-all duration-500 uppercase tracking-widest shadow-2xl shadow-red-600/20 transform active:scale-95">
-                    {{ cart.t('joinNow') }}
-                </button>
-            </div>
-        </section>
-
-        <!-- Footer -->
-        <footer class="bg-white border-t border-gray-100 py-12">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex flex-col md:flex-row justify-between items-center space-y-6 md:space-y-0 text-center md:text-left">
-                    <div class="flex items-center space-x-2">
-                        <img src="/images/logo.png" class="w-8 h-8 object-contain" alt="Thinker" />
-                        <span class="text-xl font-black tracking-tighter uppercase">Thinker</span>
-                    </div>
-                    <div class="flex flex-wrap justify-center gap-6 text-sm">
-                        <Link :href="route('privacy')" class="text-gray-500 hover:text-red-600 transition-colors">Privacy Policy</Link>
-                        <Link :href="route('terms')" class="text-gray-500 hover:text-red-600 transition-colors">Terms of Service</Link>
-                        <Link :href="route('refund-policy')" class="text-gray-500 hover:text-red-600 transition-colors">Refund Policy</Link>
-                        <Link :href="route('contact')" class="text-gray-500 hover:text-red-600 transition-colors">Contact</Link>
-                    </div>
-                    <p class="text-gray-400 text-sm">
-                        &copy; 2026 Thinker Inc. {{ cart.t('slogan') }}
-                    </p>
-                </div>
-            </div>
-        </footer>
-
+        <Footer />
         <CartModal :is-open="isCartOpen" @close="toggleCart" />
     </div>
 </template>
-
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100;400;700;900&display=swap');
-:root { font-family: 'Outfit', sans-serif; }
-@keyframes pulse-slow {
-    0%, 100% { transform: scale(1.05); opacity: 0.15; }
-    50% { transform: scale(1.1); opacity: 0.25; }
-}
-.animate-pulse-slow { animation: pulse-slow 10s ease-in-out infinite; }
-</style>

@@ -13,7 +13,7 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $lmsPackages = LmsPointPackage::orderBy('order')->orderBy('points')->get()
+        $lmsPackages = LmsPointPackage::orderBy('sort_order')->orderBy('points')->get()
             ->map(fn ($pkg) => [
                 'id' => $pkg->id,
                 'points' => $pkg->points,
@@ -23,6 +23,7 @@ class ProductController extends Controller
 
         return Inertia::render('Welcome', [
             'products' => Product::with('category')->take(3)->get(),
+            'categories' => Category::withCount('products')->where('show_on_homepage', true)->get(),
             'lmsPackages' => $lmsPackages,
         ]);
     }
@@ -47,6 +48,18 @@ class ProductController extends Controller
             'products' => $query->get(),
             'categories' => Category::all(),
             'filters' => $request->only(['category', 'min_price', 'max_price']),
+        ]);
+    }
+
+    public function show(Product $product)
+    {
+        return Inertia::render('Product/Show', [
+            'product' => $product->load('category', 'specs', 'images', 'codes'),
+            'relatedProducts' => Product::with('category')
+                ->where('category_id', $product->category_id)
+                ->where('id', '!=', $product->id)
+                ->take(4)
+                ->get(),
         ]);
     }
 }

@@ -26,9 +26,7 @@ import { Link } from '@inertiajs/vue3';
                         Smart Systems.
                     </h1>
                     
-                    <p class="text-xl text-gray-600 max-w-lg leading-relaxed">
-                        We design the future today. Discover our range of high-end electronics, software solutions, and cutting-edge smart systems built for the next generation of thinkers.
-                    </p>
+              
                     
                     <div class="flex flex-col sm:flex-row gap-4 pt-4">
                         <a href="#shop" class="px-8 py-4 bg-red-600 text-white font-bold rounded-full hover:bg-black transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl flex items-center justify-center space-x-2 group">

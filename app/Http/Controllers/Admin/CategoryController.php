@@ -1,0 +1,74 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\Category;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Illuminate\Support\Facades\Storage;
+
+class CategoryController extends Controller
+{
+    public function index()
+    {
+        return Inertia::render('Admin/Categories', [
+            'categories' => Category::withCount('products')->latest()->get()
+        ]);
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'image_file' => 'nullable|image|max:2048',
+            'show_on_homepage' => 'boolean',
+        ]);
+
+        $data = $request->only('name', 'show_on_homepage');
+
+        if ($request->hasFile('image_file')) {
+            $path = $request->file('image_file')->store('categories', 'public');
+            $data['image'] = Storage::url($path);
+        }
+
+        Category::create($data);
+
+        return redirect()->back()->with('success', 'Category created successfully.');
+    }
+
+    public function update(Request $request, Category $category)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'image_file' => 'nullable|image|max:2048',
+            'show_on_homepage' => 'boolean',
+        ]);
+
+        $data = $request->only('name', 'show_on_homepage');
+
+        if ($request->hasFile('image_file')) {
+            if ($category->image) {
+                $oldPath = str_replace('/storage/', '', $category->image);
+                Storage::disk('public')->delete($oldPath);
+            }
+            $path = $request->file('image_file')->store('categories', 'public');
+            $data['image'] = Storage::url($path);
+        }
+
+        $category->update($data);
+
+        return redirect()->back()->with('success', 'Category updated successfully.');
+    }
+
+    public function destroy(Category $category)
+    {
+        if ($category->image) {
+            $oldPath = str_replace('/storage/', '', $category->image);
+            Storage::disk('public')->delete($oldPath);
+        }
+        $category->delete();
+
+        return redirect()->back()->with('success', 'Category deleted successfully.');
+    }
+}

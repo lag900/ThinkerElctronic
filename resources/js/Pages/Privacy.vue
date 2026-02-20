@@ -1,12 +1,19 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import Navbar from '@/Components/Thinker/Navbar.vue';
 import CartModal from '@/Components/Thinker/CartModal.vue';
 import { cart } from '@/Stores/CartStore';
 
+const props = defineProps({
+    page: Object,
+});
+
 const isCartOpen = ref(false);
 const toggleCart = () => isCartOpen.value = !isCartOpen.value;
+
+const displayTitle = computed(() => cart.language === 'ar' ? props.page.title_ar : props.page.title_en);
+const displayContent = computed(() => cart.language === 'ar' ? props.page.content_ar : props.page.content_en);
 </script>
 
 <template>
@@ -20,51 +27,16 @@ const toggleCart = () => isCartOpen.value = !isCartOpen.value;
                 <img src="/images/hero_bg.png" alt="Tech" class="w-full h-full object-cover grayscale" />
             </div>
             <div class="max-w-7xl mx-auto px-4 relative z-10 text-center">
-                <h1 class="text-5xl md:text-7xl font-black tracking-tighter uppercase mb-4">
-                    Privacy <span class="text-red-600 italic">Policy</span>
-                </h1>
-                <p class="text-gray-400 text-xl">How we collect, use, and protect your data</p>
+                <h1 class="text-5xl md:text-7xl font-black tracking-tighter uppercase mb-4" v-html="displayTitle"></h1>
+                <p class="text-gray-400 text-xl">{{ cart.language === 'ar' ? 'كيف نجمع نستخدم ونحمي بياناتك' : 'How we collect, use, and protect your data' }}</p>
             </div>
         </section>
 
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-            <div class="prose prose-lg max-w-none space-y-8 text-gray-700">
-                <p class="text-gray-500 text-sm">Last updated: February 14, 2026</p>
+            <div class="prose prose-lg max-w-none space-y-8 text-gray-700" :dir="cart.language === 'ar' ? 'rtl' : 'ltr'">
+                <p class="text-gray-500 text-sm">{{ cart.language === 'ar' ? 'آخر تحديث' : 'Last updated' }}: {{ new Date(page.updated_at).toLocaleDateString() }}</p>
 
-                <section>
-                    <h2 class="text-2xl font-black text-black uppercase tracking-tight mb-4">1. Information We Collect</h2>
-                    <p>We collect information you provide directly to us, including name, email address, shipping address, and payment information when you make a purchase or create an account. We also automatically collect certain information when you visit our website, such as IP address, browser type, and device information.</p>
-                </section>
-
-                <section>
-                    <h2 class="text-2xl font-black text-black uppercase tracking-tight mb-4">2. How We Use Your Information</h2>
-                    <p>We use the information we collect to process orders, communicate with you about your purchases, improve our products and services, send promotional communications (with your consent), and comply with legal obligations.</p>
-                </section>
-
-                <section>
-                    <h2 class="text-2xl font-black text-black uppercase tracking-tight mb-4">3. Data Security</h2>
-                    <p>We implement appropriate technical and organizational measures to protect your personal data against unauthorized access, alteration, disclosure, or destruction. Payment information is processed through secure, encrypted channels.</p>
-                </section>
-
-                <section>
-                    <h2 class="text-2xl font-black text-black uppercase tracking-tight mb-4">4. Cookies and Tracking</h2>
-                    <p>We use cookies and similar technologies to enhance your browsing experience, analyze site traffic, and personalize content. You can control cookie preferences through your browser settings.</p>
-                </section>
-
-                <section>
-                    <h2 class="text-2xl font-black text-black uppercase tracking-tight mb-4">5. Third-Party Sharing</h2>
-                    <p>We do not sell your personal information. We may share data with service providers who assist in operations (e.g., payment processors, shipping carriers) under strict confidentiality agreements.</p>
-                </section>
-
-                <section>
-                    <h2 class="text-2xl font-black text-black uppercase tracking-tight mb-4">6. Your Rights</h2>
-                    <p>You have the right to access, correct, or delete your personal data. You may also opt out of marketing communications at any time. Contact us to exercise these rights.</p>
-                </section>
-
-                <section>
-                    <h2 class="text-2xl font-black text-black uppercase tracking-tight mb-4">7. Contact Us</h2>
-                    <p>For questions about this Privacy Policy, please contact us through our website or at the contact information provided on our homepage.</p>
-                </section>
+                <div v-html="displayContent" class="dynamic-content"></div>
             </div>
 
             <div class="mt-12 pt-8 border-t border-gray-100">

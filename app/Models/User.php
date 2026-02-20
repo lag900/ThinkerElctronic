@@ -12,15 +12,11 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'name',
         'email',
         'password',
+        'role_id',
     ];
 
     /**
@@ -44,5 +40,27 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function roleNode()
+    {
+        return $this->belongsTo(Role::class, 'role_id');
+    }
+
+    public function hasPermission($permission)
+    {
+        if (!$this->roleNode) return false;
+        
+        return $this->roleNode->permissions()->where('name', $permission)->exists();
+    }
+
+    public function isAdmin()
+    {
+        // Null-safe check for legacy role or new node-based role
+        if ($this->role === 'admin') {
+            return true;
+        }
+
+        return $this->roleNode && $this->roleNode->name === 'super_admin';
     }
 }

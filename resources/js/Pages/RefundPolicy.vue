@@ -1,12 +1,19 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import Navbar from '@/Components/Thinker/Navbar.vue';
 import CartModal from '@/Components/Thinker/CartModal.vue';
 import { cart } from '@/Stores/CartStore';
 
+const props = defineProps({
+    page: Object,
+});
+
 const isCartOpen = ref(false);
 const toggleCart = () => isCartOpen.value = !isCartOpen.value;
+
+const displayTitle = computed(() => cart.language === 'ar' ? props.page.title_ar : props.page.title_en);
+const displayContent = computed(() => cart.language === 'ar' ? props.page.content_ar : props.page.content_en);
 </script>
 
 <template>
@@ -20,41 +27,16 @@ const toggleCart = () => isCartOpen.value = !isCartOpen.value;
                 <img src="/images/hero_bg.png" alt="Tech" class="w-full h-full object-cover grayscale" />
             </div>
             <div class="max-w-7xl mx-auto px-4 relative z-10 text-center">
-                <h1 class="text-5xl md:text-7xl font-black tracking-tighter uppercase mb-4">
-                    Refund <span class="text-red-600 italic">Policy</span>
-                </h1>
-                <p class="text-gray-400 text-xl">Our policy regarding refunds and returns</p>
+                <h1 class="text-5xl md:text-7xl font-black tracking-tighter uppercase mb-4" v-html="displayTitle"></h1>
+                <p class="text-gray-400 text-xl">{{ cart.language === 'ar' ? 'سياستنا بخصوص الاسترجاع والاسترداد' : 'Our policy regarding refunds and returns' }}</p>
             </div>
         </section>
 
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-            <div class="prose prose-lg max-w-none space-y-8 text-gray-700">
-                <p class="text-gray-500 text-sm">Last updated: February 14, 2026</p>
+            <div class="prose prose-lg max-w-none space-y-8 text-gray-700" :dir="cart.language === 'ar' ? 'rtl' : 'ltr'">
+                <p class="text-gray-500 text-sm">{{ cart.language === 'ar' ? 'آخر تحديث' : 'Last updated' }}: {{ new Date(page.updated_at).toLocaleDateString() }}</p>
 
-                <section>
-                    <h2 class="text-2xl font-black text-black uppercase tracking-tight mb-4">No Refund Policy</h2>
-                    <p>All sales are final. Thinker does not offer refunds or returns on any products or services purchased through our website. By completing a purchase, you acknowledge and agree to this no-refund policy.</p>
-                </section>
-
-                <section>
-                    <h2 class="text-2xl font-black text-black uppercase tracking-tight mb-4">Why No Refunds?</h2>
-                    <p>We specialize in custom electronics, 3D-printed components, and specialized software solutions. Many of our products are made-to-order or customized for specific clients. Due to the nature of our products and the personalized nature of our services, we cannot accept returns or refunds once an order has been placed and processed.</p>
-                </section>
-
-                <section>
-                    <h2 class="text-2xl font-black text-black uppercase tracking-tight mb-4">Before You Purchase</h2>
-                    <p>We encourage you to review product descriptions, specifications, and images carefully before making a purchase. If you have any questions about a product or service, please contact us before placing your order. We are happy to provide additional information to help you make an informed decision.</p>
-                </section>
-
-                <section>
-                    <h2 class="text-2xl font-black text-black uppercase tracking-tight mb-4">Defective Products</h2>
-                    <p>In the rare event that you receive a product that is defective or damaged in shipping, please contact us within 24 hours of delivery. We will assess each case individually and may, at our sole discretion, offer a replacement for defective items. This does not constitute a refund and applies only to manufacturing defects or shipping damage.</p>
-                </section>
-
-                <section>
-                    <h2 class="text-2xl font-black text-black uppercase tracking-tight mb-4">Contact Us</h2>
-                    <p>If you have questions about this Refund Policy or need assistance with your order, please contact us through our website. We are committed to ensuring customer satisfaction and will work with you to address any concerns within the scope of this policy.</p>
-                </section>
+                <div v-html="displayContent" class="dynamic-content"></div>
             </div>
 
             <div class="mt-12 pt-8 border-t border-gray-100">

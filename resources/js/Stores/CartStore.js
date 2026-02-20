@@ -1,21 +1,41 @@
 import { reactive, computed } from 'vue';
 
+// Check for existing data in storage
+const savedCart = typeof window !== 'undefined' ? localStorage.getItem('thinker_cart') : null;
+const savedLang = typeof window !== 'undefined' ? localStorage.getItem('thinker_lang') : 'en';
+
+// Set initial document state
+if (typeof window !== 'undefined') {
+    document.documentElement.dir = savedLang === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.lang = savedLang || 'en';
+}
+
 export const cart = reactive({
-    items: [],
+    items: savedCart ? JSON.parse(savedCart) : [],
     currency: 'EGP',
-    language: 'en', // 'en' or 'ar'
+    language: savedLang || 'en',
     
+    saveToStorage() {
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('thinker_cart', JSON.stringify(this.items));
+            localStorage.setItem('thinker_lang', this.language);
+        }
+    },
+
     addItem(product) {
+        const qtyToAdd = product.quantity || 1;
         const existingItem = this.items.find(item => item.id === product.id);
         if (existingItem) {
-            existingItem.quantity++;
+            existingItem.quantity += qtyToAdd;
         } else {
-            this.items.push({ ...product, quantity: 1 });
+            this.items.push({ ...product, quantity: qtyToAdd });
         }
+        this.saveToStorage();
     },
     
     removeItem(productId) {
         this.items = this.items.filter(item => item.id !== productId);
+        this.saveToStorage();
     },
     
     updateQuantity(productId, quantity) {
@@ -23,10 +43,12 @@ export const cart = reactive({
         if (item) {
             item.quantity = Math.max(1, parseInt(quantity) || 1);
         }
+        this.saveToStorage();
     },
     
     clearCart() {
         this.items = [];
+        this.saveToStorage();
     },
     
     get total() {
@@ -41,6 +63,7 @@ export const cart = reactive({
         this.language = this.language === 'en' ? 'ar' : 'en';
         document.documentElement.dir = this.language === 'ar' ? 'rtl' : 'ltr';
         document.documentElement.lang = this.language;
+        this.saveToStorage();
     },
 
     t(key) {
@@ -73,8 +96,53 @@ export const cart = reactive({
                 discover: 'Discover our latest innovations in smart technology.',
                 filter: 'Filter by Price',
                 categories: 'Product Categories',
+                dashboard: 'Dashboard',
+                login: 'Login',
                 lmsPointsDesc: 'These points are used in the smart printing system at Borg El Arab Technological University in Alexandria - and to pay for some products displayed on the university\'s platform.',
-                lmsPointsDescAr: 'يتم استخدام هذه النقاط في نظام الطباعة الذكية بجامعة برج العرب التكنولوجية بالإسكندرية - ودفع تكلفة بعض المنتجات المعروضة على المنصة الخاصة بالجامعة.'
+                fullName: 'Full Name',
+                phone: 'Phone number',
+                email: 'Email address',
+                address: 'Street address',
+                city: 'City',
+                province: 'Province',
+                country: 'Country',
+                notes: 'Order notes',
+                cod: 'Cash on delivery',
+                instapay: 'Instapay transfer',
+                creditCard: 'Credit card',
+                orderSummary: 'Order summary',
+                total: 'Total',
+                shipping: 'Shipping',
+                placeOrder: 'Place Order',
+                paymentMethods: 'Payment Methods',
+                shippingDetails: 'Shipping Details',
+                profile: 'Profile',
+                account: 'Account',
+                inventory: 'Inventory',
+                analytics: 'Analytics',
+                settings: 'Settings',
+                viewStore: 'View Store',
+                orders: 'Orders',
+                customers: 'Customers',
+                categories: 'Categories',
+                products: 'Products',
+                welcome: 'Dashboard',
+                salesToday: 'Sales Today',
+                revenue: 'Revenue',
+                profit: 'Profit',
+                performance: 'Performance',
+                avgOrder: 'Avg Order',
+                noOrders: 'No orders yet.',
+                orderId: 'Order ID',
+                date: 'Date',
+                status: 'Status',
+                action: 'Action',
+                invoice: 'Invoice',
+                lmsPoints: 'LMS Points',
+                privacyPolicy: 'Privacy Policy',
+                termsOfService: 'Terms of Service',
+                refundPolicy: 'Refund Policy',
+                contactInfo: 'Contact Info',
             },
             ar: {
                 home: 'الرئيسية',
@@ -104,8 +172,52 @@ export const cart = reactive({
                 discover: 'اكتشف أحدث ابتكاراتنا في التكنولوجيا الذكية.',
                 filter: 'تصفية حسب السعر',
                 categories: 'أقسام المنتجات',
+                dashboard: 'لوحة التحكم',
+                login: 'دخول',
                 lmsPointsDesc: 'يتم استخدام هذه النقاط في نظام الطباعة الذكية بجامعة برج العرب التكنولوجية بالإسكندرية - ودفع تكلفة بعض المنتجات المعروضة على المنصة الخاصة بالجامعة.',
-                lmsPointsDescAr: 'يتم استخدام هذه النقاط في نظام الطباعة الذكية بجامعة برج العرب التكنولوجية بالإسكندرية - ودفع تكلفة بعض المنتجات المعروضة على المنصة الخاصة بالجامعة.'
+                fullName: 'الاسم الكامل',
+                phone: 'رقم الهاتف',
+                email: 'البريد الإلكتروني',
+                address: 'العنوان',
+                city: 'المدينة',
+                province: 'المحافظة',
+                country: 'الدولة',
+                notes: 'ملاحظات الطلب',
+                cod: 'الدفع عند الاستلام',
+                instapay: 'تحويل إنستا باي',
+                creditCard: 'الدفع بالبطاقة',
+                orderSummary: 'ملخص الطلب',
+                total: 'المجموع',
+                shipping: 'الشحن',
+                placeOrder: 'إتمام الطلب',
+                paymentMethods: 'وسائد الدفع',
+                shippingDetails: 'بيانات الشحن',
+                profile: 'الشخصي',
+                account: 'حسابي',
+                inventory: 'المخزون',
+                analytics: 'التحليلات',
+                settings: 'الإعدادات',
+                viewStore: 'مشاهدة المتجر',
+                orders: 'الطلبات',
+                customers: 'العملاء',
+                products: 'المنتجات',
+                welcome: 'لوحة التحكم',
+                salesToday: 'مبيعات اليوم',
+                revenue: 'الإيرادات',
+                profit: 'الربح',
+                performance: 'أداء النظام',
+                avgOrder: 'متوسط الطلب',
+                noOrders: 'لا توجد طلبات بعد.',
+                orderId: 'رقم الطلب',
+                date: 'التاريخ',
+                status: 'الحالة',
+                action: 'الإجراء',
+                invoice: 'الفاتورة',
+                lmsPoints: 'نقاط LMS',
+                privacyPolicy: 'سياسة الخصوصية',
+                termsOfService: 'شروط الخدمة',
+                refundPolicy: 'سياسة الاسترجاع',
+                contactInfo: 'بيانات الاتصال',
             }
         };
         return translations[this.language][key] || key;

@@ -8,6 +8,8 @@ import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
+import { system } from './Stores/SystemStore';
+
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
     resolve: (name) =>
@@ -16,12 +18,30 @@ createInertiaApp({
             import.meta.glob('./Pages/**/*.vue'),
         ),
     setup({ el, App, props, plugin }) {
-        return createApp({ render: () => h(App, props) })
+        const vueApp = createApp({ render: () => h(App, props) });
+        
+        // Global Click-Once Directive for Enterprise Double-Submit Protection
+        vueApp.directive('click-once', {
+            mounted(el) {
+                el.addEventListener('click', (e) => {
+                    if (el.getAttribute('disabled')) return;
+                    el.setAttribute('disabled', 'true');
+                    el.classList.add('opacity-50', 'cursor-not-allowed');
+                    setTimeout(() => {
+                        el.removeAttribute('disabled');
+                        el.classList.remove('opacity-50', 'cursor-not-allowed');
+                    }, 1000); // 1s safety window
+                });
+            }
+        });
+
+        return vueApp
             .use(plugin)
             .use(ZiggyVue)
             .mount(el);
     },
     progress: {
-        color: '#4B5563',
+        color: '#ff2d55', // Updated to match brand red
+        showSpinner: true,
     },
 });
