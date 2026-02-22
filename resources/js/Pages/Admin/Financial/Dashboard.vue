@@ -104,7 +104,7 @@ const analyticsItems = computed(() => {
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-50">
-                                <tr v-for="row in (stats.breakdown || [])" :key="(row.status || '') + (row.payment_method || '')" class="hover:bg-slate-50/50 transition-colors">
+                                <tr v-for="row in (stats?.breakdown || [])" :key="(row?.status || '') + (row?.payment_method || '')" class="hover:bg-slate-50/50 transition-colors">
                                     <td class="p-8">
                                         <span class="px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest inline-block" 
                                               :class="{
@@ -122,7 +122,7 @@ const analyticsItems = computed(() => {
                                         {{ formatCurrency(row.gross_profit) }}
                                     </td>
                                     <td class="p-8">
-                                        <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">{{ row.payment_method }}</span>
+                                        <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">{{ row?.payment_method || 'N/A' }}</span>
                                     </td>
                                 </tr>
                             </tbody>

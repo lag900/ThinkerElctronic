@@ -93,8 +93,8 @@ class FinancialService
     {
         return Order::select('status', 
                 DB::raw('count(*) as count'), 
-                DB::raw('SUM(total) as total_money'),
-                DB::raw('SUM(total_profit) as gross_profit'), // Gross profit from products
+                DB::raw('COALESCE(SUM(total), 0) as total_money'),
+                DB::raw('COALESCE(SUM(total_profit), 0) as gross_profit'),
                 DB::raw('payment_method')
             )
             ->groupBy('status', 'payment_method')

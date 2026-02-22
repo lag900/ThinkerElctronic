@@ -302,6 +302,10 @@ export const cart = reactive({
                 systemGovernance: 'حوكمة وإدارة النظام',
             }
         };
+        if (!translations[this.language]) {
+            // Fallback to ar if current language is not found
+            return translations['ar'][key] || translations['en'][key] || key;
+        }
         return translations[this.language][key] || key;
     }
 });
