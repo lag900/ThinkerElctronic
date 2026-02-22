@@ -153,10 +153,12 @@ class RolesAndPermissionsProfessionalSeeder extends Seeder
         ])->pluck('id');
         $viewer->permissions()->sync($viewerPerms);
         
-        $user = \App\Models\User::first();
-        if ($user) {
-            $user->role_id = $superAdmin->id;
-            $user->save();
+        $adminUser = \App\Models\User::where('email', 'admin@thinker.com')->first();
+        if ($adminUser) {
+            $adminUser->role_id = $superAdmin->id;
+            // Also set the legacy role column if it exists
+            $adminUser->role = 'super_admin';
+            $adminUser->save();
         }
     }
 }
