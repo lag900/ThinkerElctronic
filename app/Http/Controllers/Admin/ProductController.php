@@ -52,6 +52,10 @@ class ProductController extends Controller
             'codes.*.code' => 'required|string',
             'codes.*.language' => 'required|string',
             'codes.*.title' => 'nullable|string',
+            'slug' => 'nullable|string|max:255|unique:products,slug',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string',
+            'meta_keywords' => 'nullable|string',
         ]);
 
         DB::transaction(function () use ($validated, $request) {
@@ -82,6 +86,10 @@ class ProductController extends Controller
                 'video_provider' => $validated['video_provider'] ?? null,
                 'video_url' => $validated['video_url'] ?? null,
                 'video_path' => $videoPath,
+                'slug' => $validated['slug'] ?? \Illuminate\Support\Str::slug($validated['name']),
+                'meta_title' => $validated['meta_title'] ?? null,
+                'meta_description' => $validated['meta_description'] ?? null,
+                'meta_keywords' => $validated['meta_keywords'] ?? null,
             ]);
 
             // Specs
@@ -150,6 +158,10 @@ class ProductController extends Controller
             'gallery_images.*' => 'nullable|image|max:2048',
             'specs' => 'nullable|array',
             'codes' => 'nullable|array',
+            'slug' => 'nullable|string|max:255|unique:products,slug,' . $product->id,
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string',
+            'meta_keywords' => 'nullable|string',
         ]);
 
         DB::transaction(function () use ($validated, $request, $product) {
@@ -169,6 +181,10 @@ class ProductController extends Controller
                 'youtube_url' => $validated['youtube_url'] ?? null,
                 'video_provider' => $validated['video_provider'] ?? null,
                 'video_url' => $validated['video_url'] ?? null,
+                'slug' => $validated['slug'] ?? \Illuminate\Support\Str::slug($validated['name']),
+                'meta_title' => $validated['meta_title'] ?? null,
+                'meta_description' => $validated['meta_description'] ?? null,
+                'meta_keywords' => $validated['meta_keywords'] ?? null,
             ];
 
             if ($request->hasFile('video_file')) {

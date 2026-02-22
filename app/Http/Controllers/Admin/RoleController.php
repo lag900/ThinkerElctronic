@@ -21,7 +21,22 @@ class RoleController extends Controller
     public function index()
     {
         return Inertia::render('Admin/Roles', [
-            'roles' => $this->roleService->getAllRoles(),
+            'roles' => Role::withCount('users')->get(),
+        ]);
+    }
+
+    public function create()
+    {
+        return Inertia::render('Admin/Roles/Edit', [
+            'role' => null,
+            'permissions' => Permission::all()->groupBy('group'),
+        ]);
+    }
+
+    public function edit(Role $role)
+    {
+        return Inertia::render('Admin/Roles/Edit', [
+            'role' => $role->load('permissions'),
             'permissions' => Permission::all()->groupBy('group'),
         ]);
     }
@@ -38,7 +53,7 @@ class RoleController extends Controller
 
         $this->roleService->createRole($data);
 
-        return redirect()->back()->with('success', 'Security role created.');
+        return redirect()->route('admin.roles.index')->with('success', 'Security role created.');
     }
 
     public function update(Request $request, Role $role)
@@ -53,7 +68,7 @@ class RoleController extends Controller
 
         $this->roleService->updateRole($role, $data);
 
-        return redirect()->back()->with('success', 'Security role updated.');
+        return redirect()->route('admin.roles.index')->with('success', 'Security role updated.');
     }
 
     public function destroy(Request $request, Role $role)

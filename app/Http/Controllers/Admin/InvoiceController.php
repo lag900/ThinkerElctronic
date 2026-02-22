@@ -9,7 +9,7 @@ use App\Services\InvoiceNumberGenerator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Spatie\Browsershot\Browsershot;
+use Barryvdh\Snappy\Facades\SnappyPdf as PDF;
 use App\Jobs\SendInvoiceEmailJob;
 
 class InvoiceController extends Controller
@@ -87,7 +87,7 @@ class InvoiceController extends Controller
                 'order_id' => $order->id,
                 'invoice_number' => InvoiceNumberGenerator::generate(),
                 'subtotal' => $order->subtotal,
-                'shipping' => $order->shipping ?? 0,
+                'shipping' => $order->delivery_price ?? 0,
                 'total' => $order->total,
                 'currency' => 'EGP',
                 'status' => 'paid',
@@ -106,19 +106,18 @@ class InvoiceController extends Controller
 
         $pdfPath = storage_path('app/public/' . $fileName);
 
-        // Browsershot PDF generation
-        $nodeBinary = config('services.browsershot.node_binary');
-        $npmBinary = config('services.browsershot.npm_binary');
-        $nodePath = dirname($nodeBinary);
-
-        Browsershot::html($html)
-            ->setNodeBinary($nodeBinary)
-            ->setNpmBinary($npmBinary)
-            ->setIncludePath($nodePath)
-            ->noSandbox()
-            ->addChromiumArguments(['--disable-setuid-sandbox', '--disable-dev-shm-usage'])
-            ->format('A4')
-            ->margins(0, 0, 0, 0)
+        // Generate PDF strict settings using Snappy
+        $pdf = PDF::loadView('pdf.invoice', compact('order', 'invoice'))
+            ->setOption('margin-top', 10)
+            ->setOption('margin-bottom', 10)
+            ->setOption('margin-left', 10)
+            ->setOption('margin-right', 10)
+            ->setOption('encoding', 'UTF-8')
+            ->setOption('enable-local-file-access', true)
+            ->setOption('dpi', 300)
+            ->setOption('image-quality', 100)
+            ->setOption('print-media-type', true)
+            ->setOption('disable-smart-shrinking', true)
             ->save($pdfPath);
 
         $invoice->update([
@@ -174,7 +173,7 @@ class InvoiceController extends Controller
         $invoice = $order->invoice ?? new Invoice([
             'invoice_number' => 'PREVIEW-000000',
             'subtotal' => $order->subtotal,
-            'shipping' => $order->shipping ?? 0,
+            'shipping' => $order->delivery_price ?? 0,
             'total' => $order->total,
             'currency' => 'EGP',
             'created_at' => now(),

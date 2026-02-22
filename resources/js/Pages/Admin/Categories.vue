@@ -29,6 +29,10 @@ const form = useForm({
     parent_id: null,
     sort_order: 0,
     is_active: true,
+    slug: '',
+    meta_title: '',
+    meta_description: '',
+    meta_keywords: '',
 });
 
 const openModal = (cat = null) => {
@@ -39,6 +43,10 @@ const openModal = (cat = null) => {
         form.parent_id = cat.parent_id;
         form.sort_order = cat.sort_order || 0;
         form.is_active = !!cat.is_active;
+        form.slug = cat.slug || '';
+        form.meta_title = cat.meta_title || '';
+        form.meta_description = cat.meta_description || '';
+        form.meta_keywords = cat.meta_keywords || '';
     } else {
         form.reset();
     }
@@ -266,6 +274,17 @@ const getCategoryColor = (name) => {
                             <div class="w-9 h-5 rounded-full p-1 transition-all" :class="form.is_active ? 'bg-[#ff2b2b]' : 'bg-gray-200'">
                                 <div class="w-3 h-3 bg-white rounded-full shadow-sm transition-all" :class="form.is_active ? (cart.language === 'ar' ? '-translate-x-4' : 'translate-x-4') : 'translate-x-0'"></div>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- SEO Fields -->
+                    <div class="space-y-4 pt-4 border-t border-gray-100">
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-[#ff2b2b] px-1">SEO Matrix (Slug & Meta)</label>
+                            <input v-model="form.slug" type="text" placeholder="category-slug" class="w-full bg-[#fcfcfc] border border-[#f1f1f1] rounded-[16px] py-4 px-6 text-sm font-bold text-gray-900 focus:ring-4 focus:ring-[#ff2b2b]/5 focus:border-[#ff2b2b] outline-none mb-2">
+                            <input v-model="form.meta_title" type="text" placeholder="Meta Title..." class="w-full bg-[#fcfcfc] border border-[#f1f1f1] rounded-[16px] py-4 px-6 text-sm font-bold text-gray-900 focus:ring-4 focus:ring-[#ff2b2b]/5 focus:border-[#ff2b2b] outline-none mb-2">
+                            <textarea v-model="form.meta_description" rows="2" placeholder="Meta Description..." class="w-full bg-[#fcfcfc] border border-[#f1f1f1] rounded-[16px] py-4 px-6 text-sm font-bold text-gray-900 focus:ring-4 focus:ring-[#ff2b2b]/5 focus:border-[#ff2b2b] outline-none mb-2"></textarea>
+                            <input v-model="form.meta_keywords" type="text" placeholder="keywords, comma, separated" class="w-full bg-[#fcfcfc] border border-[#f1f1f1] rounded-[16px] py-4 px-6 text-sm font-bold text-gray-900 focus:ring-4 focus:ring-[#ff2b2b]/5 focus:border-[#ff2b2b] outline-none">
                         </div>
                     </div>
 

@@ -19,6 +19,9 @@ class UserService
             ->when($filters['role_id'] ?? null, function ($query, $roleId) {
                 $query->where('role_id', $roleId);
             })
+            ->when($filters['status'] ?? null, function ($query, $status) {
+                $query->where('status', $status);
+            })
             ->latest()
             ->paginate(15);
     }
@@ -31,6 +34,7 @@ class UserService
                 'email' => $data['email'],
                 'password' => Hash::make($data['password']),
                 'role_id' => $data['role_id'] ?? null,
+                'status' => $data['status'] ?? 'active',
             ]);
 
             $this->logActivity('created_user', User::class, $user->id, $data);
@@ -46,6 +50,7 @@ class UserService
                 'name' => $data['name'],
                 'email' => $data['email'],
                 'role_id' => $data['role_id'] ?? $user->role_id,
+                'status' => $data['status'] ?? $user->status,
             ];
 
             if (!empty($data['password'])) {

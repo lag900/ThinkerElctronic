@@ -24,7 +24,9 @@ class OrderController extends Controller
         }
 
         return Inertia::render('Checkout', [
-            'savedCustomer' => $customer
+            'savedCustomer' => $customer,
+            'governorates' => \App\Models\Governorate::where('is_active', true)->get(),
+            'deliverySettings' => \App\Models\DeliverySetting::first(),
         ]);
     }
 
@@ -42,6 +44,9 @@ class OrderController extends Controller
             'province' => 'required|string',
             'payment_method' => 'required|string',
             'notes' => 'nullable|string',
+            'governorate_id' => 'required|exists:governorates,id',
+            'area_id' => 'required|exists:areas,id',
+            'use_express' => 'nullable|boolean',
         ]);
 
         return DB::transaction(function () use ($validated, $request) {
@@ -72,18 +77,39 @@ class OrderController extends Controller
                 ]);
             }
 
+            $area = \App\Models\Area::with('governorate')->findOrFail($validated['area_id']);
+            $governorate = $area->governorate;
+
+            // ERP Delivery Logic Priority: Area Price -> Governorate Default -> 0
+            $deliveryPrice = (float) $area->delivery_price;
+            if ($deliveryPrice <= 0 && $governorate && $governorate->default_delivery_price > 0) {
+                $deliveryPrice = (float) $governorate->default_delivery_price;
+            }
+            
+            if (!empty($validated['use_express']) && $area->express_price) {
+                $deliveryPrice = (float) $area->express_price;
+            }
+
+            $settings = \App\Models\DeliverySetting::first();
+            $freeDeliveryOver = $settings ? (float) $settings->free_delivery_over : null;
+
             $order = Order::create([
                 'customer_id' => $customer->id,
                 'order_number' => 'THR-' . strtoupper(Str::random(6)),
                 'subtotal' => 0,
+                'delivery_price' => 0,
                 'discount' => 0,
                 'total' => 0,
                 'total_cost' => 0,
                 'total_profit' => 0,
                 'status' => 'pending',
                 'shipping_address' => $validated['shipping_address'],
-                'city' => $validated['city'],
-                'province' => $validated['province'],
+                'city' => $governorate->name_en,
+                'province' => $area->name_en,
+                'governorate_name' => $governorate->name_en,
+                'area_name' => $area->name_en,
+                'governorate_id' => $governorate->id,
+                'area_id' => $area->id,
                 'payment_method' => $validated['payment_method'],
                 'payment_status' => 'pending',
                 'notes' => $validated['notes'] ?? null,
@@ -131,9 +157,14 @@ class OrderController extends Controller
                 $totalProfit += $stats['profit'];
             }
 
+            // ERP PROTOCOL: Use fetched delivery price strictly from database
+            // No threshold override allowed per Rule 8
+
             $order->update([
                 'subtotal' => $totalAmount,
-                'total' => $totalAmount,
+                'delivery_price' => $deliveryPrice,
+                'total' => $totalAmount + $deliveryPrice,
+                'final_total' => $totalAmount + $deliveryPrice,
                 'total_cost' => $totalCost,
                 'total_profit' => $totalProfit,
             ]);
@@ -168,7 +199,7 @@ class OrderController extends Controller
                 'order_id' => $order->id,
                 'invoice_number' => \App\Services\InvoiceNumberGenerator::generate(),
                 'subtotal' => $order->subtotal,
-                'shipping' => $order->shipping ?? 0,
+                'shipping' => $order->delivery_price ?? 0,
                 'total' => $order->total,
                 'currency' => 'EGP',
                 'status' => 'paid',

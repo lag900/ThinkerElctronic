@@ -27,9 +27,17 @@ class CategoryController extends Controller
             'parent_id' => 'nullable|exists:categories,id',
             'sort_order' => 'integer',
             'is_active' => 'boolean',
+            'slug' => 'nullable|string|max:255|unique:categories,slug',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string',
+            'meta_keywords' => 'nullable|string',
         ]);
 
-        $data = $request->only('name', 'show_on_homepage', 'parent_id', 'sort_order', 'is_active');
+        $data = $request->only('name', 'show_on_homepage', 'parent_id', 'sort_order', 'is_active', 'slug', 'meta_title', 'meta_description', 'meta_keywords');
+        
+        if (empty($data['slug'])) {
+            $data['slug'] = \Illuminate\Support\Str::slug($data['name']);
+        }
 
         if ($request->hasFile('image_file')) {
             $path = $request->file('image_file')->store('categories', 'public');
@@ -50,9 +58,17 @@ class CategoryController extends Controller
             'parent_id' => 'nullable|exists:categories,id',
             'sort_order' => 'integer',
             'is_active' => 'boolean',
+            'slug' => 'nullable|string|max:255|unique:categories,slug,' . $category->id,
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string',
+            'meta_keywords' => 'nullable|string',
         ]);
 
-        $data = $request->only('name', 'show_on_homepage', 'parent_id', 'sort_order', 'is_active');
+        $data = $request->only('name', 'show_on_homepage', 'parent_id', 'sort_order', 'is_active', 'slug', 'meta_title', 'meta_description', 'meta_keywords');
+
+        if (empty($data['slug'])) {
+            $data['slug'] = \Illuminate\Support\Str::slug($data['name']);
+        }
 
         if ($request->hasFile('image_file')) {
             if ($category->image) {

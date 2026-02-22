@@ -102,12 +102,13 @@ const formatDate = (dateString) => {
                             </div>
                             <div class="flex justify-between items-center text-sm font-bold opacity-60">
                                 <span>Shipping</span>
-                                <span class="text-brand-500">FREE</span>
+                                <span v-if="order.delivery_price > 0">{{ order.delivery_price }} EGP</span>
+                                <span v-else class="text-brand-500">{{ cart.language === 'ar' ? 'مجاني' : 'FREE' }}</span>
                             </div>
                             <div class="h-px bg-border/10 my-6"></div>
                             <div class="flex justify-between items-center">
                                 <span class="text-lg font-black text-ink-main">Total</span>
-                                <span class="text-2xl font-black text-brand-500">{{ order.total }} EGP</span>
+                                <span class="text-2xl font-black text-brand-500">{{ order.final_total }} EGP</span>
                             </div>
                         </div>
                     </div>

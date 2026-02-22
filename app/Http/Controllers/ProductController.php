@@ -37,7 +37,10 @@ class ProductController extends Controller
         $query = Product::with('category');
 
         if ($request->has('category')) {
-            $query->where('category_id', $request->category);
+            $cat = $request->category;
+            $query->whereHas('category', function($q) use ($cat) {
+                $q->where('id', $cat)->orWhere('slug', $cat);
+            });
         }
 
         if ($request->has('min_price')) {

@@ -44,6 +44,12 @@ class HandleInertiaRequests extends Middleware
             'flash' => [
                 'success' => $request->session()->get('success'),
                 'error' => $request->session()->get('error'),
+            ],
+            'seo' => [
+                'google_verification' => \App\Models\Setting::get('google_verification_code'),
+                'global_title' => \App\Models\Setting::get('global_meta_title', 'Thinker Store'),
+                'global_description' => \App\Models\Setting::get('global_meta_description', 'Best laptops and tech in Egypt'),
+                'global_keywords' => \App\Models\Setting::get('global_meta_keywords', 'thinker, laptops, egypt, tech'),
             ]
         ];
     }

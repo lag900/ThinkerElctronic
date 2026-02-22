@@ -33,7 +33,11 @@ const form = useForm({
     main_image: null,
     gallery_images: [],
     specs: props.product.specs || [],
-    codes: props.product.codes || []
+    codes: props.product.codes || [],
+    slug: props.product.slug,
+    meta_title: props.product.meta_title,
+    meta_description: props.product.meta_description,
+    meta_keywords: props.product.meta_keywords,
 });
 
 const submit = () => {
@@ -267,6 +271,34 @@ const deleteImage = (id) => {
                                     </select>
                                 </div>
                                 <textarea v-model="block.code" rows="8" :placeholder="cart.language === 'ar' ? '// الصق الكود البرمجي المطور هنا...' : '// Paste specialized functional logic here...'" class="w-full bg-[#1f1f1f] text-emerald-400 font-mono text-sm rounded-[24px] border-none px-8 py-8 focus:ring-2 focus:ring-[#ff2e63]/30 shadow-2xl leading-relaxed" dir="ltr" spellcheck="false"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEO Management -->
+                    <div class="space-y-8 pt-12 border-t border-[#f8f9fb]">
+                        <div class="pb-2 border-b border-[#ececf2]/50">
+                            <h4 class="text-lg font-black text-[#1f1f1f] tracking-tighter uppercase">{{ cart.language === 'ar' ? 'تحسين محركات البحث (SEO)' : 'Search Engine Optimization (SEO)' }}</h4>
+                            <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mt-1">{{ cart.language === 'ar' ? 'إدارة الكلمات الافتتاحية والوصف لمحركات البحث' : 'Manage how this product appears in search engines' }}</p>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="space-y-1.5 md:col-span-2">
+                                <InputLabel :value="cart.language === 'ar' ? 'الرابط الدائم (Slug)' : 'URL Performance Slug'" class="text-[10px] font-black uppercase text-gray-400 px-1" />
+                                <input v-model="form.slug" type="text" placeholder="asus-rog-strix-g16" class="input-premium" />
+                                <p class="text-[9px] text-brand-500 font-bold mt-1 tracking-tight" v-if="cart.language === 'ar'">* تغيير الرابط الدائم قد يؤدي لكسر الروابط القديمة في محركات البحث</p>
+                                <p class="text-[9px] text-brand-500 font-bold mt-1 tracking-tight" v-else>* Changing the slug will break existing external links and SEO indexing</p>
+                            </div>
+                            <div class="space-y-1.5 md:col-span-2">
+                                <InputLabel :value="cart.language === 'ar' ? 'عنوان الميتا (Meta Title)' : 'Meta Title Tag'" class="text-[10px] font-black uppercase text-gray-400 px-1" />
+                                <input v-model="form.meta_title" type="text" placeholder="Best Laptop in Egypt..." class="input-premium" />
+                            </div>
+                            <div class="space-y-1.5 md:col-span-2">
+                                <InputLabel :value="cart.language === 'ar' ? 'وصف الميتا (Meta Description)' : 'Meta Description'" class="text-[10px] font-black uppercase text-gray-400 px-1" />
+                                <textarea v-model="form.meta_description" rows="3" class="input-premium !py-4" placeholder="Brief summary for Google..."></textarea>
+                            </div>
+                            <div class="space-y-1.5 md:col-span-2">
+                                <InputLabel :value="cart.language === 'ar' ? 'الكلمات الافتتاحية (Keywords)' : 'Meta Keywords'" class="text-[10px] font-black uppercase text-gray-400 px-1" />
+                                <input v-model="form.meta_keywords" type="text" placeholder="laptop, gaming, asus..." class="input-premium" />
                             </div>
                         </div>
                     </div>

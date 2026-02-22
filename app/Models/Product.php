@@ -10,6 +10,7 @@ class Product extends Model
 
     protected $fillable = [
         'name',
+        'slug',
         'name_ar',
         'sku',
         'description',
@@ -29,7 +30,25 @@ class Product extends Model
         'sale_price',
         'sale_start_date',
         'sale_end_date',
+        'meta_title',
+        'meta_description',
+        'meta_keywords',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($product) {
+            if (empty($product->slug)) {
+                $product->slug = \Illuminate\Support\Str::slug($product->name);
+            }
+        });
+        static::updating(function ($product) {
+            if (empty($product->slug)) {
+                $product->slug = \Illuminate\Support\Str::slug($product->name);
+            }
+        });
+    }
 
     protected $casts = [
         'sale_start_date' => 'datetime',
@@ -84,5 +103,10 @@ class Product extends Model
     public function batches()
     {
         return $this->hasMany(ProductBatch::class)->orderBy('created_at');
+    }
+
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
     }
 }

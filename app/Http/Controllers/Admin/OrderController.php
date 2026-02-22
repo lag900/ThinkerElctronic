@@ -6,6 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use App\Exports\OrdersExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Carbon\Carbon;
 
 class OrderController extends Controller
 {
@@ -13,17 +17,30 @@ class OrderController extends Controller
     {
         $search = $request->input('search');
         $employeeId = $request->input('employee_id');
+        $status = $request->input('status');
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
 
         $orders = Order::with(['customer', 'invoice', 'creator'])
             ->when($search, function ($query, $search) {
                 $query->where('order_number', 'like', "%{$search}%")
                     ->orWhereHas('customer', function ($q) use ($search) {
                         $q->where('name', 'like', "%{$search}%")
-                          ->orWhere('email', 'like', "%{$search}%");
+                          ->orWhere('email', 'like', "%{$search}%")
+                          ->orWhere('phone', 'like', "%{$search}%");
                     });
             })
             ->when($employeeId, function ($query, $employeeId) {
                 $query->where('created_by', $employeeId);
+            })
+            ->when($status, function ($query, $status) {
+                $query->where('status', $status);
+            })
+            ->when($startDate, function ($query, $startDate) {
+                $query->whereDate('created_at', '>=', $startDate);
+            })
+            ->when($endDate, function ($query, $endDate) {
+                $query->whereDate('created_at', '<=', $endDate);
             })
             ->orderBy('created_at', 'desc')
             ->paginate(15)
@@ -37,7 +54,10 @@ class OrderController extends Controller
             'employees' => $creators,
             'filters' => [
                 'search' => $search,
-                'employee_id' => $employeeId
+                'employee_id' => $employeeId,
+                'status' => $status,
+                'start_date' => $startDate,
+                'end_date' => $endDate,
             ]
         ]);
     }
@@ -158,5 +178,57 @@ class OrderController extends Controller
         }
 
         return redirect()->back()->with('success', 'Entity extracted and value recalculated.');
+    }
+
+    public function destroy(Order $order)
+    {
+        // Cleanup PDF before deletion
+        if ($order->invoice && $order->invoice->pdf_path) {
+            Storage::disk('public')->delete($order->invoice->pdf_path);
+        }
+
+        $order->delete();
+        return redirect()->back()->with('success', 'Order and associated invoice PDF deleted.');
+    }
+
+    public function bulkDelete(Request $request)
+    {
+        $status = $request->input('status'); // all, failed, pending
+
+        if ($status === 'all') {
+            $orders = Order::with('invoice')->get();
+            foreach ($orders as $order) {
+                if ($order->invoice && $order->invoice->pdf_path) {
+                    Storage::disk('public')->delete($order->invoice->pdf_path);
+                }
+                $order->delete();
+            }
+            // Emergency Protocol: Wipe the folder to ensure no orphans
+            Storage::disk('public')->deleteDirectory('invoices');
+            Storage::disk('public')->makeDirectory('invoices');
+        } else {
+            $query = Order::query();
+            if ($status === 'failed') {
+                $query->where('status', 'failed');
+            } elseif ($status === 'pending') {
+                $query->where('status', 'pending');
+            }
+
+            $orders = $query->with('invoice')->get();
+            foreach ($orders as $order) {
+                if ($order->invoice && $order->invoice->pdf_path) {
+                    Storage::disk('public')->delete($order->invoice->pdf_path);
+                }
+                $order->delete();
+            }
+        }
+
+        return redirect()->back()->with('success', 'Bulk deletion completed. PDFs and records cleared.');
+    }
+
+    public function export(Request $request)
+    {
+        $dateStr = Carbon::now()->format('Y-m-d');
+        return Excel::download(new OrdersExport($request), "orders-report-{$dateStr}.xlsx");
     }
 }

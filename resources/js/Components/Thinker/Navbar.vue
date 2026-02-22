@@ -141,19 +141,19 @@ const navLinks = [
 </script>
 
 <template>
-    <!-- Dynamic Spacer prevents fixed header content overlap -->
-    <div :style="{ height: headerHeight + 'px' }" class="w-full shrink-0 transition-all duration-300" :class="{ 'hidden': transparent }"></div>
+    <!-- Dynamic Spacer prevents fixed header content overlap (Always 90px matching fixed header) -->
+    <div class="h-[90px] w-full shrink-0" :class="{ 'hidden': transparent }"></div>
 
     <nav 
         ref="navRef"
-        class="fixed top-0 inset-x-0 z-[100] transition-all duration-500"
+        class="fixed top-0 inset-x-0 z-[100] transition-colors duration-500 h-[90px] flex items-center"
         :class="[
-            isScrolled ? 'py-4 bg-white/80 backdrop-blur-2xl shadow-[0_8px_32px_rgba(0,0,0,0.05)] border-b border-white/20' : (transparent ? 'py-6 bg-transparent' : 'py-6 bg-white'),
+            isScrolled ? 'bg-white/95 backdrop-blur-2xl shadow-[0_4px_24px_rgba(0,0,0,0.06)] border-b border-gray-100' : (transparent ? 'bg-transparent' : 'bg-white border-b border-gray-100'),
             cart.language === 'ar' ? 'rtl' : 'ltr'
         ]"
     >
-        <div class="max-w-7xl mx-auto w-full px-6 sm:px-8">
-            <div class="flex items-center justify-between gap-8 h-12">
+        <div class="max-w-[1400px] mx-auto w-full px-4 sm:px-8">
+            <div class="flex items-center justify-between gap-4 lg:gap-8 h-full">
                 <!-- Brand -->
                 <Link href="/" class="flex items-center gap-3 group shrink-0 relative overflow-hidden">
                     <div class="relative w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center transition-transform duration-500 group-hover:scale-110">
@@ -167,9 +167,8 @@ const navLinks = [
                 </Link>
 
                 <!-- Centered Hero Search Bar -->
-                <div class="hidden md:flex flex-1 max-w-2xl relative group">
-                    <div class="relative w-full overflow-hidden rounded-2xl transition-all duration-300 ring-1 ring-transparent focus-within:ring-brand-500/20 shadow-sm border border-transparent"
-                         :class="isDark && !isScrolled ? 'bg-white/10 hover:bg-white/15' : 'bg-gray-100/50 hover:bg-gray-100'">
+                <div class="hidden md:flex flex-1 justify-center w-full max-w-[720px] mx-auto relative group">
+                    <div class="relative w-full">
                         <input 
                             v-model="globalSearch"
                             @input="handleInput"
@@ -177,21 +176,24 @@ const navLinks = [
                             @focus="fetchLiveSearch"
                             @blur="closeDropdown"
                             type="text" 
-                            class="w-full bg-transparent border-none py-3.5 px-14 text-sm font-bold focus:ring-0 transition-all"
-                            :class="isDark && !isScrolled ? 'text-white placeholder-white/40' : 'text-black placeholder-gray-400'"
-                            :placeholder="cart.language === 'ar' ? 'البحث عن التكنولوجيا...' : 'Search for technology...'"
+                            class="w-full h-[56px] rounded-[14px] text-[14px] font-medium tracking-[0.3px] border border-transparent focus:border-[#ff2d55] focus:ring-0 focus:shadow-[0_0_0_3px_rgba(255,45,85,0.12)] outline-none transition-all placeholder:text-[13px] placeholder:text-[#9aa0a6] placeholder:font-normal"
+                            :class="isDark && !isScrolled ? 'bg-white/10 text-white' : 'bg-gray-100 hover:bg-gray-200/50 text-[#111] focus:bg-white focus:hover:bg-white'"
+                            :style="cart.language === 'ar' ? 'padding: 0 48px 0 18px;' : 'padding: 0 18px 0 48px;'"
+                            :placeholder="cart.language === 'ar' ? 'البحث عن التكنولوجيا والمنتجات...' : 'Search for products, tech, brands...'"
                         >
-                        <div class="absolute left-5 top-1/2 -translate-y-1/2">
-                            <svg class="w-5 h-5 transition-colors duration-300" 
-                                 :class="[isDark && !isScrolled ? 'text-white/40' : 'text-gray-400', 'group-focus-within:text-brand-500']"
+                        <div class="absolute top-1/2 -translate-y-1/2 opacity-60 flex items-center justify-center pointer-events-none"
+                             :style="cart.language === 'ar' ? 'right: 16px; left: auto;' : 'left: 16px; right: auto;'">
+                            <svg class="w-[18px] h-[18px] transition-colors" 
+                                 :class="[isDark && !isScrolled ? 'text-white' : 'text-[#111]']"
                                  fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                         </div>
                         
                         <!-- Search Shortcut -->
-                        <div class="absolute right-5 top-1/2 -translate-y-1/2 hidden lg:flex items-center gap-1.5 px-2 py-1 rounded-lg border text-[9px] font-black"
-                             :class="isDark && !isScrolled ? 'border-white/10 text-white/40' : 'border-gray-200 text-gray-400'">
+                        <div class="absolute top-1/2 -translate-y-1/2 hidden lg:flex items-center gap-1.5 px-2 py-1 rounded-lg border text-[9px] font-black pointer-events-none transition-opacity"
+                             :style="cart.language === 'ar' ? 'left: 16px; right: auto;' : 'right: 16px; left: auto;'"
+                             :class="isDark && !isScrolled ? 'border-white/10 text-white/40' : 'border-gray-200 text-gray-400 opacity-60'">
                             <span>COMMAND</span>
                             <span class="opacity-50">+</span>
                             <span>K</span>
@@ -199,19 +201,19 @@ const navLinks = [
                     </div>
 
                     <!-- Enhanced Live Search Dropdown -->
-                    <div v-if="showDropdown && globalSearch" class="absolute top-full left-0 right-0 mt-4 bg-white/95 backdrop-blur-2xl border border-gray-100 rounded-[32px] shadow-[0_32px_80px_-20px_rgba(0,0,0,0.15)] overflow-hidden z-[300] animate-in fade-in slide-in-from-top-4 duration-500">
+                    <div v-if="showDropdown && globalSearch" class="absolute top-[calc(100%+8px)] left-0 right-0 bg-white border border-gray-100 rounded-[16px] shadow-[0_20px_60px_rgba(0,0,0,0.1)] overflow-hidden z-[999] animate-in fade-in slide-in-from-top-2 duration-300">
                         <div v-if="isSearching" class="p-12 flex flex-col items-center justify-center gap-4">
                             <div class="relative w-10 h-10">
                                 <div class="absolute inset-0 border-2 border-brand-500/20 rounded-full"></div>
                                 <div class="absolute inset-0 border-2 border-brand-500 rounded-full border-t-transparent animate-spin"></div>
                             </div>
-                            <span class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Deep Search Active</span>
+                            <span class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Loading Results...</span>
                         </div>
                         
-                        <div v-else-if="liveResults.length > 0" class="max-h-[60vh] overflow-y-auto">
-                            <div class="px-8 py-5 border-b border-gray-50 flex justify-between items-center bg-gray-50/30">
-                                <span class="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400">Matches Found</span>
-                                <span class="px-3 py-1 bg-brand-500/10 text-brand-500 rounded-full text-[9px] font-black">{{ liveResults.length }}</span>
+                        <div v-else-if="liveResults.length > 0" class="max-h-[400px] overflow-y-auto w-full">
+                            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-white text-[#222]">
+                                <span class="text-[11px] font-bold uppercase text-gray-400">Matches Found</span>
+                                <span class="px-2 py-0.5 bg-brand-500/10 text-brand-500 rounded-lg text-[10px] font-black">{{ liveResults.length }}</span>
                             </div>
                             
                             <div v-for="(product, index) in liveResults" :key="product.id"
@@ -232,6 +234,14 @@ const navLinks = [
                                     <div class="text-sm font-black text-gray-900">{{ formatCurrency(product.price) }}</div>
                                 </div>
                             </div>
+                            <button @click="handleGlobalSearch" class="w-full py-4 bg-gray-50 text-xs font-black text-brand-500 hover:bg-gray-100 transition-colors uppercase tracking-widest border-t border-gray-100">
+                                View all results
+                            </button>
+                        </div>
+                        <div v-else class="p-10 text-center flex flex-col items-center justify-center">
+                            <svg class="w-12 h-12 text-gray-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            <span class="text-sm font-bold text-gray-500 block">No results found</span>
+                            <span class="text-[11px] text-gray-400 mt-1 block">Try adjusting your search terms</span>
                         </div>
                     </div>
                 </div>
@@ -286,8 +296,8 @@ const navLinks = [
             </div>
 
             <!-- Mobile Search Bar (Only visible on small screens) -->
-            <div class="md:hidden pb-6 px-4 relative z-[200]">
-                <div class="relative w-full group">
+            <div class="md:hidden absolute top-[90px] left-0 right-0 bg-white border-b border-gray-100 p-4 shadow-sm z-[99]">
+                <div class="relative w-full max-w-[720px] mx-auto group">
                     <input 
                         v-model="globalSearch"
                         @input="handleInput"
@@ -295,11 +305,15 @@ const navLinks = [
                         @focus="fetchLiveSearch"
                         @blur="closeDropdown"
                         type="text" 
-                        class="w-full border-none rounded-2xl py-4 px-12 text-xs font-bold focus:bg-white focus:text-black focus:ring-4 focus:ring-brand-500/5 transition-all shadow-sm"
-                        :class="isDark ? 'bg-white/10 text-white placeholder-white/50' : 'bg-slate-50 text-black placeholder-slate-400'"
-                        :placeholder="cart.language === 'ar' ? 'بحث عن منتجات...' : 'Search hardware...'"
+                        class="w-full h-[56px] rounded-[14px] text-[14px] font-medium tracking-[0.3px] border border-transparent focus:border-[#ff2d55] focus:ring-0 focus:shadow-[0_0_0_3px_rgba(255,45,85,0.12)] outline-none transition-all placeholder:text-[13px] placeholder:text-[#9aa0a6] placeholder:font-normal"
+                        :class="isDark ? 'bg-white/10 text-white' : 'bg-gray-100 text-[#111] focus:bg-white'"
+                        :style="cart.language === 'ar' ? 'padding: 0 48px 0 18px;' : 'padding: 0 18px 0 48px;'"
+                        :placeholder="cart.language === 'ar' ? 'بحث...' : 'Search for products...'"
                     >
-                    <svg class="w-4 h-4 absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 focus-within:text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                    <div class="absolute top-1/2 -translate-y-1/2 opacity-60 flex items-center justify-center pointer-events-none"
+                         :style="cart.language === 'ar' ? 'right: 16px; left: auto;' : 'left: 16px; right: auto;'">
+                        <svg class="w-[18px] h-[18px]" :class="isDark ? 'text-white' : 'text-[#111]'" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                    </div>
                 </div>
 
                 <!-- Dropdown UI Mobile -->

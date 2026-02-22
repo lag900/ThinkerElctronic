@@ -83,8 +83,43 @@ const copyCode = (code, index) => {
 </script>
 
 <template>
-    <Head :title="productName + ' - Thinker'" />
-    
+    <Head>
+        <title>{{ productName }} - Thinker Store</title>
+        <meta name="description" :content="product.meta_description || productDescription.substring(0, 160)" />
+        <meta name="keywords" :content="product.meta_keywords" />
+        <meta property="og:title" :content="productName + ' - Thinker Store'" />
+        <meta property="og:description" :content="product.meta_description || productDescription.substring(0, 160)" />
+        <meta property="og:image" :content="product.image_url" />
+        <meta property="og:type" content="product" />
+        <meta name="twitter:title" :content="productName" />
+        <meta name="twitter:description" :content="product.meta_description || productDescription.substring(0, 160)" />
+        <meta name="twitter:image" :content="product.image_url" />
+        
+        <script type="application/ld+json">
+        {{
+            JSON.stringify({
+                "@context": "https://schema.org/",
+                "@type": "Product",
+                "name": productName,
+                "image": galleryImages,
+                "description": productDescription,
+                "sku": product.sku,
+                "brand": {
+                    "@type": "Brand",
+                    "name": "Thinker"
+                },
+                "offers": {
+                    "@type": "Offer",
+                    "url": route('product.show', product.slug),
+                    "priceCurrency": "EGP",
+                    "price": product.price,
+                    "availability": product.stock_quantity > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
+                }
+            })
+        }}
+        </script>
+    </Head>
+
     <div class="bg-white min-h-screen font-sans selection:bg-brand-600 selection:text-white" :dir="cart.language === 'ar' ? 'rtl' : 'ltr'">
         <Navbar @open-cart="toggleCart" />
 

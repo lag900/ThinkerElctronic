@@ -52,10 +52,11 @@ const addToCart = async () => {
     <div class="group bg-white rounded-[28px] overflow-hidden shadow-sm hover:shadow-[0_40px_80px_rgba(0,0,0,0.06)] transition-all duration-700 flex flex-col h-full border border-[#ececf2] hover:-translate-y-2 md:max-w-[260px] mx-auto w-full relative">
         
         <!-- Product Image Area -->
-        <Link :href="route('product.show', product.id)" class="relative aspect-square overflow-hidden block bg-[#fcfcfc] p-6">
+        <Link v-if="product.slug" :href="route('product.show', product.slug)" class="relative aspect-square overflow-hidden block bg-[#fcfcfc] p-6">
             <img 
                 :src="product.image_url" 
                 :alt="product.name"
+                loading="lazy"
                 class="w-full h-full object-contain transition-transform duration-1000 ease-out group-hover:scale-[1.05]"
             >
             
@@ -69,6 +70,14 @@ const addToCart = async () => {
                 <span class="text-[10px] font-black uppercase text-gray-500 tracking-[0.2em] bg-white/90 px-5 py-2.5 rounded-2xl border border-gray-100 shadow-xl">Sold Out</span>
             </div>
         </Link>
+        <div v-else class="relative aspect-square overflow-hidden block bg-[#fcfcfc] p-6">
+            <img 
+                :src="product.image_url" 
+                :alt="product.name"
+                loading="lazy"
+                class="w-full h-full object-contain transition-transform duration-1000 ease-out group-hover:scale-[1.05]"
+            >
+        </div>
 
         <!-- Product Details -->
         <div class="p-6 flex-1 flex flex-col relative bg-white">
@@ -82,11 +91,16 @@ const addToCart = async () => {
                 </div>
             </div>
 
-            <Link :href="route('product.show', product.id)" class="block mb-4 flex-1">
+            <Link v-if="product.slug" :href="route('product.show', product.slug)" class="block mb-4 flex-1">
                 <h3 class="text-[15px] font-bold text-[#1a1a1a] leading-tight line-clamp-2 transition-colors group-hover:text-[#ff2e63]">
                     {{ cart.language === 'ar' ? (product.name_ar || product.name) : product.name }}
                 </h3>
             </Link>
+            <div v-else class="block mb-4 flex-1">
+                <h3 class="text-[15px] font-bold text-[#1a1a1a] leading-tight line-clamp-2">
+                    {{ cart.language === 'ar' ? (product.name_ar || product.name) : product.name }}
+                </h3>
+            </div>
 
             <!-- Pricing Tier -->
             <div class="mb-5 flex items-end gap-2">

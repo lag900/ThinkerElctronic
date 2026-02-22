@@ -120,6 +120,29 @@ onMounted(() => {
                         <span v-if="isSidebarOpen" class="font-bold text-xs tracking-tight uppercase truncate">Expenses</span>
                     </Link>
                 </div>
+                <!-- Delivery Control System -->
+                <div class="space-y-1">
+                    <p v-if="isSidebarOpen" class="px-4 text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Delivery Control</p>
+                    <Link 
+                        :href="route('admin.governorates.index')"
+                        class="flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 group relative overflow-hidden"
+                        :class="route().current('admin.governorates.*') ? 'bg-brand-50 text-brand-500 shadow-sm' : 'text-slate-500 hover:bg-slate-50 hover:text-brand-500'"
+                    >
+                        <div v-if="route().current('admin.governorates.*')" class="absolute inset-y-0 w-[3px] bg-brand-500" :class="cart.language === 'ar' ? 'right-0' : 'left-0'"></div>
+                        <svg class="w-5 h-5 shrink-0 transition-transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+                        <span v-if="isSidebarOpen" class="font-bold text-xs tracking-tight uppercase truncate">Governorates</span>
+                    </Link>
+                    <Link 
+                        :href="route('admin.areas.index')"
+                        class="flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 group relative overflow-hidden"
+                        :class="route().current('admin.areas.*') ? 'bg-brand-50 text-brand-500 shadow-sm' : 'text-slate-500 hover:bg-slate-50 hover:text-brand-500'"
+                    >
+                        <div v-if="route().current('admin.areas.*')" class="absolute inset-y-0 w-[3px] bg-brand-500" :class="cart.language === 'ar' ? 'right-0' : 'left-0'"></div>
+                        <svg class="w-5 h-5 shrink-0 transition-transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                        <span v-if="isSidebarOpen" class="font-bold text-xs tracking-tight uppercase truncate">Areas & Pricing</span>
+                    </Link>
+                </div>
+
 
                 <!-- Secondary Intelligence -->
                 <div class="space-y-1">
@@ -175,6 +198,25 @@ onMounted(() => {
                         <span v-if="isSidebarOpen" class="font-bold text-xs tracking-tight uppercase truncate">Home Content</span>
                     </Link>
                     
+                    <Link 
+                        :href="route('admin.posts.index')"
+                        class="flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 group relative overflow-hidden"
+                        :class="route().current('admin.posts.*') ? 'bg-brand-50 text-brand-500 shadow-sm' : 'text-slate-500 hover:bg-slate-50 hover:text-brand-500'"
+                    >
+                        <div v-if="route().current('admin.posts.*')" class="absolute inset-y-0 w-[3px] bg-brand-500" :class="cart.language === 'ar' ? 'right-0' : 'left-0'"></div>
+                        <svg class="w-5 h-5 shrink-0 transition-transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                        <span v-if="isSidebarOpen" class="font-bold text-xs tracking-tight uppercase truncate">Blog / News</span>
+                    </Link>
+                    <Link 
+                        :href="route('admin.seo.settings')"
+                        class="flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 group relative overflow-hidden"
+                        :class="route().current('admin.seo.settings') ? 'bg-brand-50 text-brand-500 shadow-sm' : 'text-slate-500 hover:bg-slate-50 hover:text-brand-500'"
+                    >
+                        <div v-if="route().current('admin.seo.settings')" class="absolute inset-y-0 w-[3px] bg-brand-500" :class="cart.language === 'ar' ? 'right-0' : 'left-0'"></div>
+                        <svg class="w-5 h-5 shrink-0 transition-transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                        <span v-if="isSidebarOpen" class="font-bold text-xs tracking-tight uppercase truncate">SEO Optimization</span>
+                    </Link>
+                    
                     <!-- Collapsible Legal Panel -->
                     <details class="group [&_summary::-webkit-details-marker]:hidden">
                         <summary class="flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 cursor-pointer text-slate-500 hover:bg-slate-50 hover:text-[#222] list-none select-none">
@@ -214,15 +256,7 @@ onMounted(() => {
                         <svg class="w-5 h-5 shrink-0 transition-transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
                         <span v-if="isSidebarOpen" class="font-bold text-xs tracking-tight uppercase truncate">Access Roles</span>
                     </Link>
-                    <Link 
-                        :href="route('admin.settings')"
-                        class="flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 group relative overflow-hidden"
-                        :class="route().current('admin.settings') ? 'bg-brand-50 text-brand-500 shadow-sm' : 'text-slate-500 hover:bg-slate-50 hover:text-brand-500'"
-                    >
-                        <div v-if="route().current('admin.settings')" class="absolute inset-y-0 w-[3px] bg-brand-500" :class="cart.language === 'ar' ? 'right-0' : 'left-0'"></div>
-                        <svg class="w-5 h-5 shrink-0 transition-transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/></svg>
-                        <span v-if="isSidebarOpen" class="font-bold text-xs tracking-tight uppercase truncate">Global Settings</span>
-                    </Link>
+
                 </div>
             </nav>
         </aside>

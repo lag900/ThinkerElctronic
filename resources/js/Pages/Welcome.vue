@@ -72,7 +72,14 @@ const isExternal = (url) => {
 </script>
 
 <template>
-    <Head title="Thinker - Intelligence Hub" />
+    <Head>
+        <title>{{ d.hero.title }} | {{ $page.props.seo.global_title }}</title>
+        <meta name="description" :content="$page.props.seo.global_description" />
+        <meta name="keywords" :content="$page.props.seo.global_keywords" />
+        <meta property="og:title" :content="d.hero.title" />
+        <meta property="og:description" :content="$page.props.seo.global_description" />
+        <meta property="og:type" content="website" />
+    </Head>
     
     <div class="bg-gray-50 min-h-screen font-sans overflow-x-hidden" :dir="cart.language === 'ar' ? 'rtl' : 'ltr'">
         <Navbar @open-cart="toggleCart" :transparent="true" theme="dark" />
@@ -205,14 +212,14 @@ const isExternal = (url) => {
                         <!-- Dynamic Background Glow -->
                         <div class="absolute -top-20 -right-20 w-48 h-48 bg-brand-500/5 rounded-full blur-[60px] group-hover:bg-brand-500/10 transition-colors"></div>
                         
-                        <Link :href="route('shop', { category: cat.id })" class="w-20 h-20 sm:w-28 sm:h-28 mb-8 bg-white rounded-3xl p-5 sm:p-7 shadow-[0_10px_30px_rgba(0,0,0,0.03)] border border-gray-50 group-hover:scale-110 group-hover:rotate-12 transition-all duration-700 block relative z-10">
+                        <Link :href="route('shop', { category: cat.slug })" class="w-20 h-20 sm:w-28 sm:h-28 mb-8 bg-white rounded-3xl p-5 sm:p-7 shadow-[0_10px_30px_rgba(0,0,0,0.03)] border border-gray-50 group-hover:scale-110 group-hover:rotate-12 transition-all duration-700 block relative z-10">
                             <img v-if="cat.image" :src="cat.image" class="w-full h-full object-contain">
                             <div v-else class="w-full h-full flex items-center justify-center text-gray-200 text-3xl">📦</div>
                         </Link>
 
                         <div class="space-y-6 w-full relative z-10">
                             <div class="space-y-1">
-                                <Link :href="route('shop', { category: cat.id })" class="text-lg sm:text-2xl font-black text-gray-900 uppercase tracking-tighter hover:text-brand-500 transition-colors block">
+                                <Link :href="route('shop', { category: cat.slug })" class="text-lg sm:text-2xl font-black text-gray-900 uppercase tracking-tighter hover:text-brand-500 transition-colors block">
                                     {{ cat.name }}
                                 </Link>
                                 <div class="flex items-center justify-center gap-2">
@@ -228,14 +235,14 @@ const isExternal = (url) => {
                                 <Link 
                                     v-for="sub in cat.children" 
                                     :key="sub.id"
-                                    :href="route('shop', { category: sub.id })"
+                                    :href="route('shop', { category: sub.slug })"
                                     class="bg-white px-3 py-1.5 rounded-xl text-[8px] font-black uppercase tracking-widest text-gray-500 border border-gray-100 hover:border-brand-500 hover:text-brand-500 transition-all shadow-sm"
                                 >
                                     {{ sub.name }}
                                 </Link>
                             </div>
 
-                            <Link :href="route('shop', { category: cat.id })" class="w-full py-4 rounded-2xl bg-gray-900 text-white text-[9px] font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-500">
+                            <Link :href="route('shop', { category: cat.slug })" class="w-full py-4 rounded-2xl bg-gray-900 text-white text-[9px] font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-500">
                                 View Protocol
                             </Link>
                         </div>

@@ -11,17 +11,16 @@ export default {
         extend: {
             colors: {
                 brand: {
-                    50: '#fff3f3',
-                    100: '#ffeef0',
-                    200: '#ffdadd',
-                    300: '#ffb1b5',
-                    400: '#ff7e84',
-                    500: '#ff2b2b',  // User specified Primary Red
-                    600: '#e01616',  // User specified Hover Red
-                    700: '#b30d0d',
-                    800: '#800606',
-                    900: '#4d0202',
-                    950: '#1a0000',
+                    50: '#fff5f5',
+                    100: '#ffeaea',
+                    200: '#ffcfcf',
+                    300: '#ffa3a3',
+                    400: '#ff6b6b',
+                    500: '#ff0033',  // ERP System Red
+                    600: '#e6002e',  // Hover Red
+                    700: '#cc0029',
+                    800: '#99001f',
+                    900: '#660015',
                 },
                 ink: {
                     main: '#1e1e1e',   // Modern Text Dark (No black)

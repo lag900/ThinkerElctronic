@@ -16,6 +16,8 @@ const props = defineProps({
 const search = ref(props.filters?.search || '');
 const statusFilter = ref(props.filters?.status || '');
 const employeeFilter = ref(props.filters?.employee_id || '');
+const startDate = ref(props.filters?.start_date || '');
+const endDate = ref(props.filters?.end_date || '');
 const processingId = ref(null);
 const showQuickView = ref(false);
 const selectedOrder = ref(null);
@@ -56,7 +58,9 @@ const applyFilters = () => {
     router.get(route('admin.orders.index'), { 
         search: search.value,
         status: statusFilter.value,
-        employee_id: employeeFilter.value
+        employee_id: employeeFilter.value,
+        start_date: startDate.value,
+        end_date: endDate.value
     }, { 
         preserveState: true, 
         replace: true,
@@ -64,7 +68,55 @@ const applyFilters = () => {
     });
 };
 
-watch([search, statusFilter, employeeFilter], debounce(() => {
+const resetFilters = () => {
+    search.value = '';
+    statusFilter.value = '';
+    employeeFilter.value = '';
+    startDate.value = '';
+    endDate.value = '';
+    applyFilters();
+};
+
+const exportOrders = () => {
+    const params = new URLSearchParams({
+        search: search.value,
+        status: statusFilter.value,
+        employee_id: employeeFilter.value,
+        start_date: startDate.value,
+        end_date: endDate.value
+    });
+    window.location.href = route('admin.orders.export') + '?' + params.toString();
+};
+
+const deleteOrder = (orderId) => {
+    if (confirm(cart.language === 'ar' ? 'هل أنت متأكد من حذف هذه الفاتورة نهائياً؟' : 'Delete this invoice permanently?')) {
+        router.delete(route('admin.orders.destroy', orderId), {
+            preserveScroll: true,
+            onSuccess: () => {
+                system.notify(cart.language === 'ar' ? 'تم حذف الطلب' : 'Order deleted');
+            }
+        });
+    }
+};
+
+const bulkDelete = (status = 'all') => {
+    let msg = '';
+    if (status === 'all') msg = cart.language === 'ar' ? 'حذف كافة الفواتير وملفات PDF من الخادم؟' : 'Delete ALL invoices and PDFs from server?';
+    if (status === 'failed') msg = cart.language === 'ar' ? 'حذف كافة الفواتير الفاشلة؟' : 'Delete all Failed orders?';
+    if (status === 'pending') msg = cart.language === 'ar' ? 'حذف كافة الفواتير قيد الانتظار؟' : 'Delete all Pending orders?';
+
+    if (confirm(msg)) {
+        router.delete(route('admin.orders.bulkDelete'), {
+            data: { status },
+            preserveScroll: true,
+            onSuccess: () => {
+                system.notify(cart.language === 'ar' ? 'تمت العملية بنجاح' : 'Bulk deletion successful');
+            }
+        });
+    }
+};
+
+watch([search, statusFilter, employeeFilter, startDate, endDate], debounce(() => {
     applyFilters();
 }, 500));
 
@@ -99,42 +151,65 @@ const openQuickOrder = (order) => {
 
         <div class="space-y-6 font-inter bg-white -m-8 p-8 min-h-screen" :dir="cart.language === 'ar' ? 'rtl' : 'ltr'">
             <!-- Management Controls -->
-            <div class="flex flex-col md:flex-row items-center justify-between gap-4 pb-6 border-b border-[#f1f1f1]">
-                <div class="flex flex-col md:flex-row gap-3 items-center flex-1 w-full">
-                    <div class="relative flex-1 w-full max-w-sm">
-                        <svg class="absolute w-4 h-4 text-gray-400 top-1/2 -translate-y-1/2" :class="cart.language === 'ar' ? 'right-4' : 'left-4'" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                        <input 
-                            v-model="search"
-                            type="text" 
-                            :placeholder="cart.language === 'ar' ? 'رقم الطلب، عميل، هاتف...' : 'Order ID, Customer, Phone...'"
-                            class="w-full bg-[#fcfcfc] border border-[#f1f1f1] rounded-[14px] py-3 text-sm font-medium transition-all focus:ring-4 focus:ring-[#ff2b2b]/5 focus:border-[#ff2b2b] placeholder:text-gray-400"
-                            :class="cart.language === 'ar' ? 'pr-10' : 'pl-10'"
-                        >
+            <div class="space-y-4 pb-6 border-b border-[#f1f1f1]">
+                <div class="flex flex-col xl:flex-row items-center justify-between gap-4">
+                    <div class="flex flex-col lg:flex-row gap-3 items-center flex-1 w-full">
+                        <div class="relative flex-1 w-full max-w-sm">
+                            <svg class="absolute w-4 h-4 text-gray-400 top-1/2 -translate-y-1/2" :class="cart.language === 'ar' ? 'right-4' : 'left-4'" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                            <input 
+                                v-model="search"
+                                type="text" 
+                                :placeholder="cart.language === 'ar' ? 'رقم الطلب، عميل، هاتف...' : 'Order ID, Customer, Phone...'"
+                                class="w-full bg-[#fcfcfc] border border-[#f1f1f1] rounded-[14px] py-3 text-sm font-medium transition-all focus:ring-4 focus:ring-[#ff2b2b]/5 focus:border-[#ff2b2b] placeholder:text-gray-400"
+                                :class="cart.language === 'ar' ? 'pr-10' : 'pl-10'"
+                            >
+                        </div>
+                        <div class="flex flex-wrap gap-2 w-full lg:w-auto">
+                            <select 
+                                v-model="statusFilter"
+                                class="flex-1 lg:w-40 bg-[#fcfcfc] border border-[#f1f1f1] rounded-[14px] px-4 py-3 text-sm font-bold text-gray-700 focus:ring-4 focus:ring-[#ff2b2b]/5 focus:border-[#ff2b2b] cursor-pointer appearance-none outline-none"
+                            >
+                                <option value="">{{ cart.language === 'ar' ? 'كافة الحالات' : 'All Status' }}</option>
+                                <option v-for="s in statuses" :key="s.value" :value="s.value">{{ s.label }}</option>
+                            </select>
+                            <select 
+                                v-model="employeeFilter"
+                                class="flex-1 lg:w-48 bg-[#fcfcfc] border border-[#f1f1f1] rounded-[14px] px-4 py-3 text-sm font-bold text-gray-700 focus:ring-4 focus:ring-[#ff2b2b]/5 focus:border-[#ff2b2b] cursor-pointer appearance-none outline-none"
+                            >
+                                <option value="">{{ cart.language === 'ar' ? 'بواسطة الموظف' : 'By Employee' }}</option>
+                                <option v-for="emp in employees" :key="emp.id" :value="emp.id">{{ emp.name }}</option>
+                            </select>
+                            <div class="flex gap-2">
+                                <input type="date" v-model="startDate" class="bg-[#fcfcfc] border border-[#f1f1f1] rounded-[14px] px-3 py-3 text-xs font-bold focus:ring-[#ff2b2b]/5">
+                                <input type="date" v-model="endDate" class="bg-[#fcfcfc] border border-[#f1f1f1] rounded-[14px] px-3 py-3 text-xs font-bold focus:ring-[#ff2b2b]/5">
+                            </div>
+                            <button @click="resetFilters" class="p-3 bg-gray-50 text-gray-400 rounded-[14px] hover:text-[#ff2b2b] transition-all">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                            </button>
+                        </div>
                     </div>
-                    <div class="flex gap-2 w-full md:w-auto">
-                        <select 
-                            v-model="statusFilter"
-                            class="flex-1 md:w-40 bg-[#fcfcfc] border border-[#f1f1f1] rounded-[14px] px-4 py-3 text-sm font-bold text-gray-700 focus:ring-4 focus:ring-[#ff2b2b]/5 focus:border-[#ff2b2b] cursor-pointer appearance-none outline-none"
-                        >
-                            <option value="">{{ cart.language === 'ar' ? 'كافة الحالات' : 'All Status' }}</option>
-                            <option v-for="s in statuses" :key="s.value" :value="s.value">{{ s.label }}</option>
-                        </select>
-                        <select 
-                            v-model="employeeFilter"
-                            class="flex-1 md:w-48 bg-[#fcfcfc] border border-[#f1f1f1] rounded-[14px] px-4 py-3 text-sm font-bold text-gray-700 focus:ring-4 focus:ring-[#ff2b2b]/5 focus:border-[#ff2b2b] cursor-pointer appearance-none outline-none"
-                        >
-                            <option value="">{{ cart.language === 'ar' ? 'بواسطة الموظف' : 'By Employee' }}</option>
-                            <option v-for="emp in employees" :key="emp.id" :value="emp.id">{{ emp.name }}</option>
-                        </select>
+                    <div class="flex gap-3 w-full xl:w-auto">
+                        <button @click="exportOrders" class="flex-1 xl:flex-none px-6 py-3 bg-[#fff1f1] text-[#ff2b2b] rounded-[12px] text-xs font-bold uppercase tracking-widest hover:bg-red-100 transition-all border border-red-50 flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                            {{ cart.language === 'ar' ? 'تصدير إكسل' : 'Export Excel' }}
+                        </button>
+                        <Link :href="route('admin.pos.index')" class="flex-1 xl:flex-none px-8 py-3 bg-gradient-to-r from-[#ff2b2b] to-[#ff4d4d] text-white rounded-[12px] text-xs font-black uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all shadow-[0_8px_20px_rgba(255,43,43,0.25)] text-center">
+                            + {{ cart.language === 'ar' ? 'فاتورة جديدة' : 'New Order' }}
+                        </Link>
                     </div>
                 </div>
-                <div class="flex gap-3 w-full md:w-auto">
-                    <button class="flex-1 md:flex-none px-6 py-3 bg-[#fff1f1] text-[#ff2b2b] rounded-[12px] text-xs font-bold uppercase tracking-widest hover:bg-red-100 transition-all border border-red-50">
-                        {{ cart.language === 'ar' ? 'تصدير' : 'Export' }}
+                
+                <!-- Bulk Actions -->
+                <div class="flex flex-wrap gap-2 justify-end">
+                    <button @click="bulkDelete('pending')" class="px-4 py-2 bg-amber-50 text-amber-600 rounded-xl text-[10px] font-black uppercase tracking-widest border border-amber-100 hover:bg-amber-100 transition-all">
+                        {{ cart.language === 'ar' ? 'حذف قيد الانتظار' : 'Delete Pending' }}
                     </button>
-                    <Link :href="route('admin.pos.index')" class="flex-1 md:flex-none px-8 py-3 bg-gradient-to-r from-[#ff2b2b] to-[#ff4d4d] text-white rounded-[12px] text-xs font-black uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all shadow-[0_8px_20px_rgba(255,43,43,0.25)] text-center">
-                        + {{ cart.language === 'ar' ? 'فاتورة جديدة' : 'New Order' }}
-                    </Link>
+                    <button @click="bulkDelete('failed')" class="px-4 py-2 bg-red-50 text-red-600 rounded-xl text-[10px] font-black uppercase tracking-widest border border-red-100 hover:bg-red-100 transition-all">
+                        {{ cart.language === 'ar' ? 'حذف الفاشلة' : 'Delete Failed' }}
+                    </button>
+                    <button @click="bulkDelete('all')" class="px-4 py-2 bg-gray-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-lg">
+                        {{ cart.language === 'ar' ? 'حذف كافة السجلات' : 'Delete All Orders' }}
+                    </button>
                 </div>
             </div>
 
@@ -213,6 +288,9 @@ const openQuickOrder = (order) => {
                                         </span>
                                         <button @click="previewInvoice(order.id)" class="p-2.5 bg-white border border-[#f1f1f1] rounded-[10px] text-gray-400 hover:text-[#ff2b2b] hover:border-[#ff2b2b] hover:shadow-lg transition-all shadow-sm">
                                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                                        </button>
+                                        <button @click="deleteOrder(order.id)" class="p-2.5 bg-white border border-[#f1f1f1] rounded-[10px] text-gray-400 hover:text-red-600 hover:border-red-600 hover:shadow-lg transition-all shadow-sm">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                                         </button>
                                     </div>
                                 </td>

@@ -4,7 +4,16 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title inertia>{{ config('app.name', 'Laravel') }}</title>
+        <title inertia>{{ config('app.name', 'Thinker') }}</title>
+
+        <!-- Dynamic SEO Matrix -->
+        @if(isset($page['props']['seo']['google_verification']))
+            <meta name="google-site-verification" content="{{ $page['props']['seo']['google_verification'] }}" />
+        @endif
+        <meta name="robots" content="index, follow">
+        <meta name="author" content="Thinker Store">
+        <meta property="og:site_name" content="Thinker Technology Store">
+        <meta name="twitter:card" content="summary_large_image">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,7 +23,7 @@
         <!-- Scripts -->
         <link rel="icon" type="image/png" href="/images/logo.png">
         @routes
-        @vite(['resources/js/app.js', "resources/js/Pages/{$page['component']}.vue"])
+        @vite(['resources/js/app.js'])
         @inertiaHead
     </head>
     <body class="font-sans antialiased">

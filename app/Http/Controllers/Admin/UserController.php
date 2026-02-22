@@ -26,7 +26,7 @@ class UserController extends Controller
         return Inertia::render('Admin/Users', [
             'users' => $users,
             'roles' => $roles,
-            'filters' => $request->only(['search', 'role_id']),
+            'filters' => $request->only(['search', 'role_id', 'status']),
         ]);
     }
 
@@ -37,6 +37,7 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8',
             'role_id' => 'required|exists:roles,id',
+            'status' => 'required|in:active,suspended',
         ]);
 
         $this->userService->createUser($data);
@@ -51,15 +52,19 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:8',
             'role_id' => 'required|exists:roles,id',
+            'status' => 'required|in:active,suspended',
         ]);
 
         $this->userService->updateUser($user, $data);
 
         return redirect()->back()->with('success', 'User node updated successfully.');
     }
-
-    public function destroy(User $user)
+    public function destroy(Request $request, User $user)
     {
+        if (!$request->user()->isSuperAdmin()) {
+            return redirect()->back()->with('error', 'Only Super Admin can terminate users.');
+        }
+
         if ($user->id === \Illuminate\Support\Facades\Auth::id()) {
             return redirect()->back()->with('error', 'Cannot shutdown your own terminal node.');
         }

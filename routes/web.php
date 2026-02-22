@@ -5,7 +5,13 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\BlogController;
 
+use App\Http\Controllers\Admin\GovernorateController;
+use App\Http\Controllers\Admin\AreaController;
+use App\Http\Controllers\Admin\DeliverySettingController;
+use App\Http\Controllers\Admin\DeliveryApiController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\LmsPackageController;
 use App\Http\Controllers\OrderController;
@@ -18,15 +24,56 @@ Route::get('/privacy', [App\Http\Controllers\PageController::class, 'privacy'])-
 Route::get('/terms', [App\Http\Controllers\PageController::class, 'terms'])->name('terms');
 Route::get('/refund-policy', [App\Http\Controllers\PageController::class, 'refundPolicy'])->name('refund-policy');
 Route::get('/contact', [App\Http\Controllers\PageController::class, 'contact'])->name('contact');
-Route::get('/product/{product}', [ProductController::class, 'show'])->name('product.show');
+Route::get('/product/{product:slug}', [ProductController::class, 'show'])->name('product.show');
 Route::get('/checkout', [OrderController::class, 'checkout'])->name('checkout');
 Route::post('/order', [OrderController::class, 'store'])->name('order.store');
 Route::get('/thank-you/{id}', [OrderController::class, 'thankYou'])->name('thank.you');
 Route::get('/order/invoice/{order_number}', [OrderController::class, 'downloadInvoice'])->name('order.invoice');
 
+// SEO Routes
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('robots');
+
+// Blog Frontend
+Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
+Route::get('/blog/{post:slug}', [BlogController::class, 'show'])->name('blog.show');
+
+Route::get('/api/delivery-price', function (\Illuminate\Http\Request $request) {
+    $governorate = $request->query('governorate');
+    $zone = $request->query('zone');
+    
+    if (!$governorate) {
+        return response()->json(['delivery' => 0]);
+    }
+    
+    $query = \App\Models\DeliveryZone::where('governorate_name', $governorate)
+        ->where('status', 'active');
+        
+    if ($zone) {
+        // Find zone specific
+        $zoneMatch = (clone $query)->where('zone_name', $zone)->first();
+        if ($zoneMatch) {
+            return response()->json(['delivery' => (float) $zoneMatch->delivery_price]);
+        }
+    }
+    
+    // Fallback to governorate default (where zone is null or empty)
+    $govMatch = $query->where(function($q) {
+        $q->whereNull('zone_name')->orWhere('zone_name', '');
+    })->first();
+    
+    if ($govMatch) {
+        return response()->json(['delivery' => (float) $govMatch->delivery_price]);
+    }
+    
+    return response()->json(['delivery' => 0]);
+});
+
 // QR System Public Routes
 Route::get('/qr', [\App\Http\Controllers\QrController::class, 'index'])->name('qr.index');
 Route::get('/qr/link/{link}', [\App\Http\Controllers\QrController::class, 'click'])->name('qr.click');
+
+Route::get('/api/delivery-price/{area}', [DeliveryApiController::class, 'getPrice']);
 
 Route::get('/language/{locale}', function ($locale) {
     if (in_array($locale, ['en', 'ar'])) {
@@ -68,7 +115,7 @@ Route::middleware('auth')->group(function () {
 
     // New Admin Dashboard Routes
     Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
-        Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard')->middleware('admin:admin,super_admin');
+        Route::get('/dashboard', [\App\Http\Controllers\Admin\FinancialDashboardController::class, 'index'])->name('dashboard')->middleware('admin:admin,super_admin');
         
         // Content Management
         Route::prefix('content')->name('content.')->group(function () {
@@ -84,14 +131,17 @@ Route::middleware('auth')->group(function () {
         });
         Route::get('/inventory', fn() => Inertia::render('Admin/Inventory'))->name('inventory.index');
         Route::get('/orders', [\App\Http\Controllers\Admin\OrderController::class, 'index'])->name('orders.index');
+        Route::get('/orders/export', [\App\Http\Controllers\Admin\OrderController::class, 'export'])->name('orders.export');
+        Route::delete('/orders/bulk', [\App\Http\Controllers\Admin\OrderController::class, 'bulkDelete'])->name('orders.bulkDelete');
         Route::get('/orders/{order}', [\App\Http\Controllers\Admin\OrderController::class, 'show'])->name('orders.show');
+        Route::delete('/orders/{order}', [\App\Http\Controllers\Admin\OrderController::class, 'destroy'])->name('orders.destroy');
         Route::get('/orders/{order}/invoice', [\App\Http\Controllers\Admin\OrderController::class, 'printInvoice'])->name('orders.invoice');
         Route::put('/orders/{order}/status', [\App\Http\Controllers\Admin\OrderController::class, 'updateStatus'])->name('orders.status');
         Route::put('/orders/{order}/items/{item}', [\App\Http\Controllers\Admin\OrderController::class, 'updateItem'])->name('orders.updateItem');
         Route::resource('customers', \App\Http\Controllers\Admin\CustomerController::class);
         Route::resource('invoices', \App\Http\Controllers\Admin\InvoiceController::class)->except(['index']);
         Route::get('/analytics', [\App\Http\Controllers\Admin\AnalyticsController::class, 'index'])->name('analytics');
-        Route::get('/settings', fn() => Inertia::render('Admin/Settings'))->name('settings');
+
         Route::get('/sales-cash-control', [\App\Http\Controllers\Admin\SalesCashControlController::class, 'index'])->name('sales-cash-control');
 
         // Enterprise User & Security Matrix
@@ -131,6 +181,20 @@ Route::middleware('auth')->group(function () {
         // Expense Management
         Route::resource('expenses', \App\Http\Controllers\Admin\ExpenseController::class);
 
+        // Delivery Management System
+        Route::resource('governorates', GovernorateController::class);
+        Route::resource('areas', AreaController::class);
+        Route::get('/delivery-settings', [DeliverySettingController::class, 'index'])->name('delivery-settings.index');
+        Route::post('/delivery-settings', [DeliverySettingController::class, 'update'])->name('delivery-settings.update');
+        Route::get('/api/governorates/{governorate}/areas', [DeliveryApiController::class, 'getAreas']);
+
+        // Financial Intelligence System (Main Dashboard)
+        Route::prefix('finances')->name('finances.')->group(function () {
+            Route::get('/', function() { return redirect()->route('admin.dashboard'); })->name('index');
+            Route::get('/export', [\App\Http\Controllers\Admin\FinancialDashboardController::class, 'export'])->name('export');
+        });
+
+
         // Professional Inventory & Purchase FIFO System
         Route::get('/purchases', [\App\Http\Controllers\Admin\PurchaseController::class, 'index'])->name('purchases.index');
         Route::post('/purchases', [\App\Http\Controllers\Admin\PurchaseController::class, 'store'])->name('purchases.store');
@@ -138,6 +202,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/inventory/reports/profit', [\App\Http\Controllers\Admin\InventoryReportController::class, 'profit'])->name('inventory.reports.profit');
         Route::get('/inventory/reports/valuation', [\App\Http\Controllers\Admin\InventoryReportController::class, 'valuation'])->name('inventory.reports.valuation');
         Route::get('/inventory/dashboard', [\App\Http\Controllers\Admin\InventoryReportController::class, 'dashboard'])->name('inventory.dashboard');
+
+        // Admin Blog Management
+        Route::resource('posts', \App\Http\Controllers\Admin\PostController::class)->names('posts');
+        
+        // SEO Settings
+        Route::get('/seo-settings', [\App\Http\Controllers\Admin\SeoSettingController::class, 'index'])->name('seo.settings');
+        Route::post('/seo-settings', [\App\Http\Controllers\Admin\SeoSettingController::class, 'update'])->name('seo.settings.update');
     });
 
 
