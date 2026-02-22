@@ -17,6 +17,8 @@ class User extends Authenticatable
         'email',
         'password',
         'role_id',
+        'role',
+        'phone',
     ];
 
     /**
@@ -49,6 +51,7 @@ class User extends Authenticatable
 
     public function hasPermission($permission)
     {
+        if ($this->isSuperAdmin()) return true;
         if (!$this->roleNode) return false;
         
         return $this->roleNode->permissions()->where('name', $permission)->exists();
@@ -62,5 +65,15 @@ class User extends Authenticatable
         }
 
         return $this->roleNode && $this->roleNode->name === 'super_admin';
+    }
+
+    public function isSuperAdmin()
+    {
+        return $this->role === 'super_admin' || ($this->roleNode && $this->roleNode->name === 'super_admin');
+    }
+
+    public function ordersCreated()
+    {
+        return $this->hasMany(Order::class, 'created_by');
     }
 }

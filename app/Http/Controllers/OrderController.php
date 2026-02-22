@@ -91,21 +91,12 @@ class OrderController extends Controller
 
             $totalAmount = 0;
             $totalCost = 0;
+            $totalProfit = 0;
 
             foreach ($validated['items'] as $itemData) {
                 $product = Product::findOrFail($itemData['id']);
                 $quantity = $itemData['quantity'];
-                $price = $product->discount_price ?? $product->price;
-                $cost = $product->cost_price ?? $product->purchase_price ?? 0;
-
-                OrderItem::create([
-                    'order_id' => $order->id,
-                    'product_id' => $product->id,
-                    'quantity' => $quantity,
-                    'price' => $price,
-                    'cost' => $cost,
-                ]);
-
+                
                 // SMART INVENTORY PROTECTION: Verify stock before processing
                 if ($product->stock_quantity < $quantity) {
                     throw \Illuminate\Validation\ValidationException::withMessages([
@@ -113,8 +104,20 @@ class OrderController extends Controller
                     ]);
                 }
 
-                // SMART INVENTORY: Reduce stock and log history
-                $product->decrement('stock_quantity', $quantity);
+                $price = $product->discount_price ?? $product->price;
+
+                $orderItem = OrderItem::create([
+                    'order_id' => $order->id,
+                    'product_id' => $product->id,
+                    'quantity' => $quantity,
+                    'price' => $price,
+                    // Initial cost/profit will be updated by service
+                    'cost' => 0,
+                    'profit' => 0,
+                ]);
+
+                // FIFO DEDUCTION & REAL PROFIT
+                $stats = \App\Services\InventoryService::deductStockFIFO($orderItem);
 
                 InventoryHistory::create([
                     'product_id' => $product->id,
@@ -124,14 +127,15 @@ class OrderController extends Controller
                 ]);
 
                 $totalAmount += $price * $quantity;
-                $totalCost += $cost * $quantity;
+                $totalCost += $stats['total_cost'];
+                $totalProfit += $stats['profit'];
             }
 
             $order->update([
                 'subtotal' => $totalAmount,
                 'total' => $totalAmount,
                 'total_cost' => $totalCost,
-                'total_profit' => $totalAmount - $totalCost,
+                'total_profit' => $totalProfit,
             ]);
 
             // Build Customer History

@@ -41,9 +41,9 @@ const toggleCart = () => isCartOpen.value = !isCartOpen.value;
                     </p>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8">
                     <div v-for="pkg in packages" :key="pkg.id" 
-                        class="bg-white rounded-[40px] p-10 text-center border border-gray-100 shadow-xl shadow-gray-200/50 hover:shadow-2xl hover:shadow-red-500/10 transition-all duration-500 group relative overflow-hidden"
+                        class="bg-white rounded-[40px] p-6 sm:p-10 text-center border border-gray-100 shadow-xl shadow-gray-200/50 hover:shadow-2xl hover:shadow-red-500/10 transition-all duration-500 group relative overflow-hidden"
                     >
                         <div class="absolute top-0 right-0 w-32 h-32 bg-red-500/5 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700"></div>
                         

@@ -13,18 +13,22 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $lmsPackages = LmsPointPackage::orderBy('sort_order')->orderBy('points')->get()
-            ->map(fn ($pkg) => [
-                'id' => $pkg->id,
-                'points' => $pkg->points,
-                'price' => $pkg->price,
-                'paymentLink' => $pkg->payment_link,
-            ]);
+        $homeContent = \App\Models\Setting::where('key', 'home_content')->first();
+        $homeData = $homeContent ? json_decode($homeContent->value, true) : null;
 
         return Inertia::render('Welcome', [
-            'products' => Product::with('category')->take(3)->get(),
-            'categories' => Category::withCount('products')->where('show_on_homepage', true)->get(),
-            'lmsPackages' => $lmsPackages,
+            'products' => Product::with('category')->take(4)->get(),
+            'categories' => Category::where('is_active', true)
+                ->where('show_on_homepage', true)
+                ->whereNull('parent_id')
+                ->with(['children' => function($q) {
+                    $q->where('is_active', true)->orderBy('sort_order');
+                }])
+                ->withCount('products')
+                ->orderBy('sort_order')
+                ->orderBy('created_at', 'desc')
+                ->get(),
+            'homeData' => $homeData,
         ]);
     }
 
@@ -61,5 +65,36 @@ class ProductController extends Controller
                 ->take(4)
                 ->get(),
         ]);
+    }
+
+    public function liveSearch(Request $request)
+    {
+        $query = $request->input('q');
+        
+        if (empty($query)) {
+            return response()->json([]);
+        }
+
+        $products = Product::with('category')
+            ->where(function ($q) use ($query) {
+                $q->where('name', 'like', "%{$query}%")
+                  ->orWhere('name_ar', 'like', "%{$query}%")
+                  ->orWhere('sku', 'like', "%{$query}%");
+            })
+            ->take(8)
+            ->get()
+            ->map(function ($product) {
+                $isAr = session()->get('locale') === 'ar';
+                return [
+                    'id' => $product->id,
+                    'name' => $isAr ? ($product->name_ar ?: $product->name) : $product->name,
+                    'price' => $product->price,
+                    'image' => $product->image_url ?: '/images/placeholder.png',
+                    'stock' => $product->stock_quantity,
+                    'category' => $product->category ? ($isAr ? ($product->category->name_ar ?: $product->category->name) : $product->category->name) : null,
+                ];
+            });
+
+        return response()->json($products);
     }
 }

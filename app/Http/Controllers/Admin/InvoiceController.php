@@ -14,6 +14,64 @@ use App\Jobs\SendInvoiceEmailJob;
 
 class InvoiceController extends Controller
 {
+    public function index(Request $request)
+    {
+        $query = Invoice::with(['customer', 'order.customer'])->latest();
+
+        if ($search = $request->search) {
+            $query->where('invoice_number', 'like', "%{$search}%")
+                  ->orWhereHas('customer', function ($q) use ($search) {
+                      $q->where('name', 'like', "%{$search}%");
+                  });
+        }
+
+        return \Inertia\Inertia::render('Admin/Invoices', [
+            'invoices' => $query->paginate(20),
+            'customers' => \App\Models\Customer::orderBy('name')->get(),
+            'filters' => $request->only('search')
+        ]);
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'customer_id' => 'required|exists:customers,id',
+            'subtotal' => 'required|numeric|min:0',
+            'shipping' => 'nullable|numeric|min:0',
+            'status' => 'required|in:paid,pending,cancelled,partial',
+            'amount_paid' => 'required|numeric|min:0',
+            'notes' => 'nullable|string'
+        ]);
+
+        $baseTotal = floatval($validated['subtotal']) + floatval($validated['shipping'] ?? 0);
+        
+        $invoice = Invoice::create([
+            'customer_id' => $validated['customer_id'],
+            'invoice_number' => InvoiceNumberGenerator::generate(),
+            'subtotal' => $validated['subtotal'],
+            'shipping' => $validated['shipping'] ?? 0,
+            'total' => $baseTotal,
+            'amount_paid' => $validated['amount_paid'],
+            'currency' => 'EGP',
+            'status' => $validated['status'],
+            'secure_token' => Str::random(32),
+            'notes' => $validated['notes'],
+        ]);
+
+        return redirect()->back()->with('success', 'Invoice created successfully.');
+    }
+
+    public function update(Request $request, Invoice $invoice)
+    {
+        $validated = $request->validate([
+            'amount_paid' => 'required|numeric|min:0',
+            'status' => 'required|in:paid,pending,cancelled,partial'
+        ]);
+
+        $invoice->update($validated);
+
+        return redirect()->back()->with('success', 'Invoice updated successfully.');
+    }
     /**
      * Generate or regenerate invoice for an order.
      */

@@ -7,7 +7,7 @@ const currentYear = new Date().getFullYear();
 const footerLinks = [
     { name: 'privacyPolicy', route: 'privacy' },
     { name: 'termsOfService', route: 'terms' },
-    { name: 'refundPolicy', route: 'refund' },
+    { name: 'refundPolicy', route: 'refund-policy' },
     { name: 'contactInfo', route: 'contact' },
 ];
 </script>

@@ -26,9 +26,13 @@ export const system = reactive({
 // Global Inertia Listeners for Loading States
 router.on('start', () => system.setLoading(true));
 router.on('finish', () => system.setLoading(false));
-router.on('error', () => {
+router.on('error', (event) => {
     system.setLoading(false);
-    system.notify('An error occurred. Please try again.', 'error');
+    // If there are no validation errors, show the generic error toast
+    // If there ARE validation errors, the form components should handle showing them
+    if (Object.keys(event.detail.errors || {}).length === 0) {
+        system.notify('An error occurred. Please try again.', 'error');
+    }
 });
 router.on('success', (event) => {
     const flash = event.detail.page.props.flash;

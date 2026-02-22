@@ -9,6 +9,17 @@ import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 import { system } from './Stores/SystemStore';
+import { router } from '@inertiajs/vue3';
+
+router.on('success', (event) => {
+    const flash = event.detail.page.props.flash;
+    if (flash?.success) {
+        system.notify(flash.success);
+    }
+    if (flash?.error) {
+        system.notify(flash.error, 'error');
+    }
+});
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,

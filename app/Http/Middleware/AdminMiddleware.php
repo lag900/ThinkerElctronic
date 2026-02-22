@@ -14,12 +14,26 @@ class AdminMiddleware
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        if (Auth::check() && $request->user()->isAdmin()) {
+        if (!Auth::check()) {
+            return redirect(route('login'));
+        }
+
+        $user = $request->user();
+
+        // If no specifically requested roles, default to allowing admin and employee
+        if (empty($roles)) {
+            $roles = ['admin', 'employee', 'super_admin'];
+        }
+
+        $userRole = $user->role;
+        $nodeRole = $user->roleNode ? $user->roleNode->name : null;
+
+        if (in_array($userRole, $roles) || in_array($nodeRole, $roles)) {
             return $next($request);
         }
 
-        return redirect('/')->with('error', 'Access denied. Administrator privileges required.');
+        abort(403, 'Access denied. Unauthorized role tier.');
     }
 }

@@ -13,7 +13,8 @@ class CategoryController extends Controller
     public function index()
     {
         return Inertia::render('Admin/Categories', [
-            'categories' => Category::withCount('products')->latest()->get()
+            'categories' => Category::with('parent')->withCount('products')->orderBy('sort_order')->orderBy('created_at', 'desc')->get(),
+            'parentCategories' => Category::whereNull('parent_id')->get()
         ]);
     }
 
@@ -23,9 +24,12 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255',
             'image_file' => 'nullable|image|max:2048',
             'show_on_homepage' => 'boolean',
+            'parent_id' => 'nullable|exists:categories,id',
+            'sort_order' => 'integer',
+            'is_active' => 'boolean',
         ]);
 
-        $data = $request->only('name', 'show_on_homepage');
+        $data = $request->only('name', 'show_on_homepage', 'parent_id', 'sort_order', 'is_active');
 
         if ($request->hasFile('image_file')) {
             $path = $request->file('image_file')->store('categories', 'public');
@@ -43,9 +47,12 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255',
             'image_file' => 'nullable|image|max:2048',
             'show_on_homepage' => 'boolean',
+            'parent_id' => 'nullable|exists:categories,id',
+            'sort_order' => 'integer',
+            'is_active' => 'boolean',
         ]);
 
-        $data = $request->only('name', 'show_on_homepage');
+        $data = $request->only('name', 'show_on_homepage', 'parent_id', 'sort_order', 'is_active');
 
         if ($request->hasFile('image_file')) {
             if ($category->image) {

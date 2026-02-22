@@ -36,9 +36,13 @@ class ProductController extends Controller
             'description_ar' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'cost_price' => 'nullable|numeric|min:0',
+            'purchase_price' => 'nullable|numeric|min:0',
             'stock_quantity' => 'nullable|integer|min:0',
+            'min_stock_alert' => 'nullable|integer|min:0',
             'category_id' => 'required|exists:categories,id',
-            'youtube_url' => 'nullable|string|url',
+            'video_provider' => 'nullable|in:youtube,vimeo,local',
+            'video_url' => 'nullable|string|url',
+            'video_file' => 'nullable|mimes:mp4,mov,ogg,webm|max:102400',
             'main_image' => 'required|image|max:2048',
             'gallery_images.*' => 'nullable|image|max:2048',
             'specs' => 'nullable|array',
@@ -54,6 +58,12 @@ class ProductController extends Controller
             // Main Image
             $imagePath = $request->file('main_image')->store('products', 'public');
 
+            $videoPath = null;
+            if ($request->hasFile('video_file')) {
+                $path = $request->file('video_file')->store('product_videos', 'public');
+                $videoPath = '/storage/' . $path;
+            }
+
             $product = Product::create([
                 'name' => $validated['name'],
                 'name_ar' => $validated['name_ar'],
@@ -63,10 +73,15 @@ class ProductController extends Controller
                 'description_ar' => $validated['description_ar'],
                 'price' => $validated['price'],
                 'cost_price' => $validated['cost_price'] ?? 0,
+                'purchase_price' => $validated['purchase_price'] ?? $validated['cost_price'] ?? 0,
                 'stock_quantity' => $validated['stock_quantity'] ?? 0,
+                'min_stock_alert' => $validated['min_stock_alert'] ?? 5,
                 'category_id' => $validated['category_id'],
                 'image_url' => '/storage/' . $imagePath,
-                'youtube_url' => $validated['youtube_url'],
+                'youtube_url' => $validated['youtube_url'] ?? null,
+                'video_provider' => $validated['video_provider'] ?? null,
+                'video_url' => $validated['video_url'] ?? null,
+                'video_path' => $videoPath,
             ]);
 
             // Specs
@@ -123,9 +138,14 @@ class ProductController extends Controller
             'description_ar' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'cost_price' => 'nullable|numeric|min:0',
+            'purchase_price' => 'nullable|numeric|min:0',
             'stock_quantity' => 'nullable|integer|min:0',
+            'min_stock_alert' => 'nullable|integer|min:0',
             'category_id' => 'required|exists:categories,id',
             'youtube_url' => 'nullable|string|url',
+            'video_provider' => 'nullable|in:youtube,vimeo,local',
+            'video_url' => 'nullable|string|url',
+            'video_file' => 'nullable|mimes:mp4,mov,ogg,webm|max:102400',
             'main_image' => 'nullable|image|max:2048',
             'gallery_images.*' => 'nullable|image|max:2048',
             'specs' => 'nullable|array',
@@ -142,10 +162,19 @@ class ProductController extends Controller
                 'description_ar' => $validated['description_ar'],
                 'price' => $validated['price'],
                 'cost_price' => $validated['cost_price'] ?? 0,
+                'purchase_price' => $validated['purchase_price'] ?? 0,
                 'stock_quantity' => $validated['stock_quantity'] ?? 0,
+                'min_stock_alert' => $validated['min_stock_alert'] ?? 0,
                 'category_id' => $validated['category_id'],
-                'youtube_url' => $validated['youtube_url'],
+                'youtube_url' => $validated['youtube_url'] ?? null,
+                'video_provider' => $validated['video_provider'] ?? null,
+                'video_url' => $validated['video_url'] ?? null,
             ];
+
+            if ($request->hasFile('video_file')) {
+                $path = $request->file('video_file')->store('product_videos', 'public');
+                $updateData['video_path'] = '/storage/' . $path;
+            }
 
             if ($request->hasFile('main_image')) {
                 $imagePath = $request->file('main_image')->store('products', 'public');

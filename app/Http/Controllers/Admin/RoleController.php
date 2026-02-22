@@ -28,6 +28,7 @@ class RoleController extends Controller
 
     public function store(Request $request)
     {
+        if (!$request->user()->isSuperAdmin()) abort(403);
         $data = $request->validate([
             'name' => 'required|string|unique:roles,name',
             'label' => 'required|string',
@@ -42,6 +43,7 @@ class RoleController extends Controller
 
     public function update(Request $request, Role $role)
     {
+        if (!$request->user()->isSuperAdmin()) abort(403);
         $data = $request->validate([
             'name' => 'required|string|unique:roles,name,' . $role->id,
             'label' => 'required|string',
@@ -54,8 +56,9 @@ class RoleController extends Controller
         return redirect()->back()->with('success', 'Security role updated.');
     }
 
-    public function destroy(Role $role)
+    public function destroy(Request $request, Role $role)
     {
+        if (!$request->user()->isSuperAdmin()) abort(403);
         try {
             $this->roleService->deleteRole($role);
             return redirect()->back()->with('success', 'Security role purged.');

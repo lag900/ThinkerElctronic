@@ -41,14 +41,33 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
+        $user = \App\Models\User::where('email', $this->email)->first();
+
+        if (!$user) {
+            // Auto Register as Customer
+            $user = \App\Models\User::create([
+                'name' => explode('@', $this->email)[0],
+                'email' => $this->email,
+                'password' => \Illuminate\Support\Facades\Hash::make($this->password),
+                'role' => 'customer',
+            ]);
+            
+            event(new \Illuminate\Auth\Events\Registered($user));
+            
+            Auth::login($user, $this->boolean('remember'));
+            \Illuminate\Support\Facades\Log::info("New user auto-registered and logged in: {$this->email}");
+            RateLimiter::clear($this->throttleKey());
+            return;
+        }
+
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
-
             throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
+                'password' => 'Incorrect password',
             ]);
         }
 
+        \Illuminate\Support\Facades\Log::info("User logged in: {$this->email}");
         RateLimiter::clear($this->throttleKey());
     }
 

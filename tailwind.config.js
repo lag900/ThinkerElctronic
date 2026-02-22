@@ -11,33 +11,34 @@ export default {
         extend: {
             colors: {
                 brand: {
-                    50: '#fff1f2',
-                    100: '#ffe4e6',
-                    200: '#fecdd3',
-                    300: '#fda4af',
-                    400: '#fb7185',
-                    500: '#ff2d55', // Primary Modern Red (Apple/Nike style)
-                    600: '#e11d48',
-                    700: '#be123c',
-                    800: '#9f1239',
-                    900: '#881337',
-                    950: '#4c0519',
+                    50: '#fff3f3',
+                    100: '#ffeef0',
+                    200: '#ffdadd',
+                    300: '#ffb1b5',
+                    400: '#ff7e84',
+                    500: '#ff2b2b',  // User specified Primary Red
+                    600: '#e01616',  // User specified Hover Red
+                    700: '#b30d0d',
+                    800: '#800606',
+                    900: '#4d0202',
+                    950: '#1a0000',
                 },
                 ink: {
-                    main: '#0a0a0a',   // Carbon Black
-                    dark: '#171717',   // Deep Charcoal
-                    light: '#525252',  // Medium Gray
-                    muted: '#a3a3a3',  // Light Gray
+                    main: '#1e1e1e',   // Modern Text Dark (No black)
+                    dark: '#2d2d2d',
+                    light: '#525252',
+                    muted: '#a3a3a3',
                 },
                 surface: {
-                    50: '#f8f9fa',     // Very Light Gray
-                    100: '#f4f4f5',
-                    200: '#e4e4e7',
+                    50: '#ffffff',     // Pure white background
+                    100: '#fcfcfc',
+                    200: '#f4f4f5',
                 },
-                border: '#e5e5e5',     // Neutral Border
+                border: '#f2f2f2',     // Red Brand Soft Border
             },
             fontFamily: {
-                sans: ['Roboto', 'Cairo', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                sans: ['Inter', 'Roboto', 'Cairo', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                inter: ['Inter', 'sans-serif'],
                 roboto: ['Roboto', 'sans-serif'],
                 cairo: ['Cairo', 'sans-serif'],
             },
@@ -74,5 +75,8 @@ export default {
         },
     },
 
-    plugins: [require('@tailwindcss/forms')],
+    plugins: [
+        require('@tailwindcss/forms'),
+        require('@tailwindcss/typography')
+    ],
 };

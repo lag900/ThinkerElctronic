@@ -16,6 +16,7 @@ const isCartOpen = ref(false);
 const toggleCart = () => isCartOpen.value = !isCartOpen.value;
 
 const isFilterDrawerOpen = ref(false);
+const searchQuery = ref('');
 const selectedCategory = ref('');
 const minPrice = ref('');
 const maxPrice = ref('');
@@ -23,10 +24,14 @@ const sortBy = ref('latest');
 
 const filteredProducts = computed(() => {
     let result = props.products.filter(product => {
+        const matchesSearch = !searchQuery.value || 
+            product.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+            (product.name_ar && product.name_ar.toLowerCase().includes(searchQuery.value.toLowerCase()));
+            
         const matchesCategory = !selectedCategory.value || product.category_id == selectedCategory.value;
         const matchesMinPrice = !minPrice.value || product.price >= parseFloat(minPrice.value);
         const matchesMaxPrice = !maxPrice.value || product.price <= parseFloat(maxPrice.value);
-        return matchesCategory && matchesMinPrice && matchesMaxPrice;
+        return matchesSearch && matchesCategory && matchesMinPrice && matchesMaxPrice;
     });
 
     if (sortBy.value === 'price_asc') {
@@ -39,6 +44,7 @@ const filteredProducts = computed(() => {
 });
 
 const clearFilters = () => {
+    searchQuery.value = '';
     selectedCategory.value = '';
     minPrice.value = '';
     maxPrice.value = '';
@@ -53,19 +59,23 @@ const clearFilters = () => {
         <Navbar @open-cart="toggleCart" />
 
         <!-- Header -->
-        <header class="pt-32 pb-16 bg-white border-b border-gray-100">
-            <div class="max-w-7xl mx-auto px-6 sm:px-8">
-                <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <header class="pt-12 pb-16 bg-white border-b border-gray-100 relative z-20">
+            <div class="max-w-7xl mx-auto px-6 sm:px-8 space-y-12">
+
+
+                <!-- Page Title and Count -->
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 border-t border-gray-100 pt-8 mt-12">
                     <div class="space-y-4">
                         <nav class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-400">
                             <Link href="/" class="hover:text-black">Home</Link>
                             <span>/</span>
                             <span class="text-black">Store</span>
                         </nav>
-                        <h1 class="text-5xl font-black text-black tracking-tighter uppercase">Our <span class="text-[#ff2d55]">Hardware.</span></h1>
+                        <h1 class="text-4xl sm:text-5xl font-black text-black tracking-tighter uppercase">Our <span class="text-[#ff2d55]">Hardware.</span></h1>
                     </div>
-                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                        Showing {{ filteredProducts.length }} Total Units
+                    
+                    <div class="text-[10px] whitespace-nowrap font-bold text-gray-500 uppercase tracking-widest bg-gray-50 px-6 py-4 rounded-xl border border-gray-100 text-center w-full md:w-auto shadow-sm">
+                        Showing <span class="font-black text-black">{{ filteredProducts.length }}</span> Total Units
                     </div>
                 </div>
             </div>
@@ -109,7 +119,7 @@ const clearFilters = () => {
 
                 <!-- Grid -->
                 <div class="flex-1">
-                    <div v-if="filteredProducts.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div v-if="filteredProducts.length > 0" class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-8">
                         <ProductCard 
                             v-for="product in filteredProducts" 
                             :key="product.id" 

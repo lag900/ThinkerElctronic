@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
+    protected $appends = ['is_on_sale', 'effective_price', 'discount_percentage'];
+
     protected $fillable = [
         'name',
         'name_ar',
@@ -15,11 +17,49 @@ class Product extends Model
         'description_en',
         'price',
         'cost_price',
+        'purchase_price',
         'stock_quantity',
+        'min_stock_alert',
         'image_url',
         'youtube_url',
+        'video_provider',
+        'video_url',
+        'video_path',
         'category_id',
+        'sale_price',
+        'sale_start_date',
+        'sale_end_date',
     ];
+
+    protected $casts = [
+        'sale_start_date' => 'datetime',
+        'sale_end_date' => 'datetime',
+        'price' => 'float',
+        'sale_price' => 'float',
+    ];
+
+    public function getIsOnSaleAttribute()
+    {
+        if (!$this->sale_price) return false;
+        
+        $now = now();
+        
+        if ($this->sale_start_date && $now->lt($this->sale_start_date)) return false;
+        if ($this->sale_end_date && $now->gt($this->sale_end_date)) return false;
+        
+        return true;
+    }
+
+    public function getEffectivePriceAttribute()
+    {
+        return $this->is_on_sale ? $this->sale_price : $this->price;
+    }
+
+    public function getDiscountPercentageAttribute()
+    {
+        if (!$this->is_on_sale) return 0;
+        return round((($this->price - $this->sale_price) / $this->price) * 100);
+    }
 
     public function category()
     {
@@ -39,5 +79,10 @@ class Product extends Model
     public function codes()
     {
         return $this->hasMany(ProductCode::class);
+    }
+
+    public function batches()
+    {
+        return $this->hasMany(ProductBatch::class)->orderBy('created_at');
     }
 }

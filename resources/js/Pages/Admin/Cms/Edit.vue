@@ -20,28 +20,23 @@ function tryJson(str) {
 }
 
 const contactFields = [
-    { key: 'phone', label: 'Phone Number' },
-    { key: 'whatsapp', label: 'WhatsApp' },
-    { key: 'email', label: 'Email Address' },
-    { key: 'description', label: 'Description Text', type: 'textarea' },
-    { key: 'facebook', label: 'Facebook Link' },
-    { key: 'instagram', label: 'Instagram Link' },
-    { key: 'address', label: 'Physical Address' },
-    { key: 'map_embed', label: 'Google Map Embed Code', type: 'textarea' },
+    { key: 'phone', labelAr: 'رقم الهاتف الرئيسي', labelEn: 'Primary Phone' },
+    { key: 'whatsapp', labelAr: 'رابط الواتساب المباشر', labelEn: 'Direct WhatsApp' },
+    { key: 'email', labelAr: 'البريد الإلكتروني الرسمي', labelEn: 'Official Email' },
+    { key: 'description', labelAr: 'النص التعريفي للقسم', labelEn: 'Section Narrative', type: 'textarea' },
+    { key: 'facebook', labelAr: 'رابط الفيسبوك', labelEn: 'Facebook Source' },
+    { key: 'instagram', labelAr: 'رابط الانستجرام', labelEn: 'Instagram Source' },
+    { key: 'address', labelAr: 'العنوان الجغرافي / المقر', labelEn: 'HQ Physical Address' },
+    { key: 'map_embed', labelAr: 'كود تضمين خريطة جوجل', labelEn: 'Google Maps Logic', type: 'textarea' },
 ];
 
 const submit = () => {
-    let data = { ...form };
-    if (props.page.slug === 'contact') {
-        data.content_en = JSON.stringify(form.content_en);
-        data.content_ar = JSON.stringify(form.content_ar);
-    }
     form.transform((data) => ({
         ...data,
         content_en: props.page.slug === 'contact' ? JSON.stringify(form.content_en) : form.content_en,
         content_ar: props.page.slug === 'contact' ? JSON.stringify(form.content_ar) : form.content_ar,
     })).put(route('admin.content.pages.update', props.page.id), {
-        onSuccess: () => system.notify('Page content synchronized'),
+        onSuccess: () => system.notify(cart.language === 'ar' ? 'تمت مزامنة محتوى الصفحة بنجاح' : 'Page content synchronized'),
     });
 };
 
@@ -60,89 +55,96 @@ if (props.page.slug === 'contact') {
     <Head :title="`CMS: ${page.slug}`" />
 
     <AdminLayout>
-        <template #header>{{ cart.language === 'ar' ? 'إدارة المحتوى' : 'Content Intelligence' }} - {{ page.slug }}</template>
+        <template #header>{{ cart.language === 'ar' ? 'محرر محتوى الصفحات التعريفية (CMS)' : 'Dynamic CMS Page Orchestrator' }}</template>
 
-        <div class="max-w-7xl mx-auto">
-            <form @submit.prevent="submit" class="space-y-12">
-                <!-- Header Control -->
-                <div class="flex justify-between items-center bg-white p-10 rounded-[50px] border border-slate-50 shadow-[0_20px_60px_rgba(0,0,0,0.02)]">
-                    <div>
-                        <h3 class="text-2xl font-black text-[#222] tracking-tighter capitalize">{{ page.slug.replace('-', ' ') }}</h3>
-                        <p class="text-[10px] font-black text-slate-300 uppercase tracking-[0.3em] mt-2">Dynamic System Page Node</p>
+        <div class="max-w-7xl mx-auto font-inter" :dir="cart.language === 'ar' ? 'rtl' : 'ltr'">
+            <form @submit.prevent="submit" class="space-y-10">
+                <!-- Strategic Command Bar -->
+                <div class="flex flex-col md:flex-row justify-between items-center bg-white p-10 rounded-[24px] border border-gray-100 shadow-sm gap-10 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-gray-50 rounded-full -mr-16 -mt-16 opacity-50 group-hover:bg-gray-100 transition-colors"></div>
+                    <div class="relative z-10" :class="cart.language === 'ar' ? 'text-right' : 'text-left'">
+                        <h3 class="text-3xl font-black text-gray-900 tracking-tighter uppercase">{{ page.slug.replace('-', ' ') }}</h3>
+                        <p class="text-xs font-bold text-gray-400 mt-2">{{ cart.language === 'ar' ? 'إدارة النصوص والترجمات والروابط للصفحات العامة بالموقع الرسمي' : 'Manage strategic narratives, translations, and endpoints for public pages' }}</p>
                     </div>
-                    <div class="flex gap-4">
-                         <a :href="route(page.slug)" target="_blank" class="bg-slate-100 hover:bg-slate-200 text-[#222] px-8 py-5 rounded-[28px] font-black uppercase tracking-widest text-[11px] transition-all active:scale-95 flex items-center gap-2">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-                            Preview
+                    <div class="flex gap-4 w-full md:w-auto relative z-10">
+                         <a :href="page.slug === 'contact' ? '/contact' : '/#p-'+page.id" target="_blank" class="flex-1 md:flex-none justify-center bg-white border border-gray-200 text-gray-700 px-10 py-5 rounded-[16px] font-black text-[11px] uppercase tracking-widest transition-all hover:bg-gray-50 flex items-center gap-3 shadow-sm active:scale-95">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                            {{ cart.language === 'ar' ? 'معاينة العرض' : 'Live Preview' }}
                         </a>
                         <button 
                             type="submit" 
                             :disabled="form.processing"
-                            class="bg-[#222] hover:bg-brand-500 text-white px-10 py-5 rounded-[28px] font-black uppercase tracking-widest text-[11px] transition-all shadow-xl shadow-black/10 active:scale-95 disabled:opacity-50"
+                            class="flex-1 md:flex-none bg-gray-900 text-white px-12 py-5 rounded-[16px] font-black text-[11px] uppercase tracking-[0.2em] transition-all shadow-2xl shadow-gray-900/40 hover:bg-gray-800 disabled:opacity-50 active:scale-95"
                         >
-                            {{ form.processing ? 'Synchronizing...' : 'Save Changes' }}
+                            {{ form.processing ? (cart.language === 'ar' ? 'جاري المزامنة...' : 'Syncing...') : (cart.language === 'ar' ? 'حفظ التغييرات' : 'Persist Content') }}
                         </button>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 text-[10px] font-black uppercase tracking-[0.3em] text-slate-300">
-                    <!-- English Version -->
-                    <div class="space-y-8 bg-white p-12 rounded-[60px] border border-slate-50 shadow-[0_40px_80px_rgba(0,0,0,0.02)]">
-                        <div class="flex items-center gap-4 mb-4">
-                            <div class="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400">EN</div>
-                            <span class="text-slate-400">English Specifications</span>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                    <!-- English Node -->
+                    <div class="space-y-8 bg-white p-12 rounded-[28px] border border-gray-100 shadow-sm relative overflow-hidden" dir="ltr">
+                        <div class="absolute top-0 right-0 w-1.5 h-full bg-blue-500 opacity-10"></div>
+                        <div class="flex items-center gap-4 pb-6 border-b border-gray-100 mb-4">
+                            <div class="w-10 h-10 rounded-xl bg-gray-900 text-white flex items-center justify-center text-xs font-black shadow-lg">EN</div>
+                            <span class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">English Narrative Source</span>
                         </div>
                         
                         <div class="space-y-3">
-                            <label class="ml-6 uppercase">Page Title</label>
-                            <input v-model="form.title_en" type="text" class="w-full bg-slate-50 border-none rounded-[30px] px-8 py-5 text-sm font-bold focus:ring-2 focus:ring-brand-500/20 shadow-inner">
+                            <label class="text-[11px] font-black uppercase tracking-widest text-gray-500 px-1">Structural Title</label>
+                            <input v-model="form.title_en" type="text" class="w-full bg-gray-50 border-none rounded-[16px] px-8 py-5 text-sm font-black text-gray-900 shadow-inner focus:ring-2 focus:ring-gray-900 transition-all" placeholder="Enter English Title...">
                         </div>
 
                         <template v-if="page.slug !== 'contact'">
                             <div class="space-y-3">
-                                <label class="ml-6 uppercase">Content Body (HTML Supported)</label>
-                                <textarea v-model="form.content_en" rows="20" class="w-full bg-slate-50 border-none rounded-[40px] px-8 py-8 text-sm font-medium leading-relaxed focus:ring-2 focus:ring-brand-500/20 shadow-inner"></textarea>
+                                <label class="text-[11px] font-black uppercase tracking-widest text-gray-500 px-1">Narrative Content (HTML Logic Supported)</label>
+                                <textarea v-model="form.content_en" rows="20" class="w-full bg-gray-50 border-none rounded-[16px] px-8 py-8 text-sm font-medium leading-relaxed shadow-inner focus:ring-2 focus:ring-gray-900 text-gray-900" placeholder="Enter English content nodes..."></textarea>
                             </div>
                         </template>
                         <template v-else>
                             <div v-for="field in contactFields" :key="field.key" class="space-y-3">
-                                <label class="ml-6 uppercase">{{ field.label }}</label>
-                                <textarea v-if="field.type === 'textarea'" v-model="form.content_en[field.key]" rows="3" class="w-full bg-slate-50 border-none rounded-[30px] px-8 py-5 text-sm font-bold focus:ring-2 focus:ring-brand-500/20 shadow-inner"></textarea>
-                                <input v-else v-model="form.content_en[field.key]" type="text" class="w-full bg-slate-50 border-none rounded-[30px] px-8 py-5 text-sm font-bold focus:ring-2 focus:ring-brand-500/20 shadow-inner">
+                                <label class="text-[11px] font-black uppercase tracking-widest text-gray-500 px-1">{{ field.labelEn }}</label>
+                                <textarea v-if="field.type === 'textarea'" v-model="form.content_en[field.key]" rows="4" class="w-full bg-gray-50 border-none rounded-[16px] px-8 py-5 text-sm font-black shadow-inner focus:ring-2 focus:ring-gray-900 text-gray-900"></textarea>
+                                <input v-else v-model="form.content_en[field.key]" type="text" class="w-full bg-gray-50 border-none rounded-[16px] px-8 py-5 text-sm font-black shadow-inner focus:ring-2 focus:ring-gray-900 text-gray-900">
                             </div>
                         </template>
                     </div>
 
-                    <!-- Arabic Version -->
-                    <div class="space-y-8 bg-white p-12 rounded-[60px] border border-slate-50 shadow-[0_40px_80px_rgba(0,0,0,0.02)]" dir="rtl">
-                        <div class="flex items-center gap-4 mb-4">
-                            <div class="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400">AR</div>
-                            <span class="text-slate-400">المواصفات العربية</span>
+                    <!-- Arabic Node -->
+                    <div class="space-y-8 bg-white p-12 rounded-[28px] border border-gray-100 shadow-sm relative overflow-hidden" dir="rtl">
+                        <div class="absolute top-0 right-0 w-1.5 h-full bg-emerald-500 opacity-10"></div>
+                        <div class="flex items-center gap-4 pb-6 border-b border-gray-100 mb-4">
+                            <div class="w-10 h-10 rounded-xl bg-gray-900 text-white flex items-center justify-center text-xs font-black shadow-lg">AR</div>
+                            <span class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">مصدر المحتوى العربي</span>
                         </div>
 
                         <div class="space-y-3">
-                            <label class="mr-6 font-sans uppercase">عنوان الصفحة</label>
-                            <input v-model="form.title_ar" dir="rtl" type="text" class="w-full bg-slate-50 border-none rounded-[30px] px-8 py-5 text-sm font-bold focus:ring-2 focus:ring-brand-500/20 font-sans text-right shadow-inner">
+                            <label class="text-[11px] font-black uppercase tracking-widest text-gray-500 px-1 text-right">عنوان الصفحة الهيكلي</label>
+                            <input v-model="form.title_ar" type="text" class="w-full bg-gray-50 border-none rounded-[16px] px-8 py-5 text-sm font-black text-gray-900 shadow-inner focus:ring-2 focus:ring-gray-900 transition-all text-right" placeholder="أدخل العنوان بالعربية للتصنيف...">
                         </div>
 
                         <template v-if="page.slug !== 'contact'">
                             <div class="space-y-3">
-                                <label class="mr-6 font-sans uppercase">محتوى الصفحة (يدعم HTML)</label>
-                                <textarea v-model="form.content_ar" dir="rtl" rows="20" class="w-full bg-slate-50 border-none rounded-[40px] px-8 py-8 text-sm font-medium leading-relaxed focus:ring-2 focus:ring-brand-500/20 font-sans text-right shadow-inner"></textarea>
+                                <label class="text-[11px] font-black uppercase tracking-widest text-gray-500 px-1 text-right">متن الصفحة الأصلي (يدعم وسوم HTML)</label>
+                                <textarea v-model="form.content_ar" rows="20" class="w-full bg-gray-50 border-none rounded-[16px] px-8 py-8 text-sm font-medium leading-relaxed shadow-inner focus:ring-2 focus:ring-gray-900 text-gray-900 text-right" placeholder="أدخل المحتوى العربي المخصص للعرض..."></textarea>
                             </div>
                         </template>
                         <template v-else>
                             <div v-for="field in contactFields" :key="field.key" class="space-y-3">
-                                <label class="mr-6 font-sans uppercase">{{ field.label }}</label>
-                                <textarea v-if="field.type === 'textarea'" v-model="form.content_ar[field.key]" rows="3" class="w-full bg-slate-50 border-none rounded-[30px] px-8 py-5 text-sm font-bold focus:ring-2 focus:ring-brand-500/20 font-sans text-right shadow-inner"></textarea>
-                                <input v-else v-model="form.content_ar[field.key]" type="text" class="w-full bg-slate-50 border-none rounded-[30px] px-8 py-5 text-sm font-bold focus:ring-2 focus:ring-brand-500/20 font-sans text-right shadow-inner">
+                                <label class="text-[11px] font-black uppercase tracking-widest text-gray-500 px-1 text-right">{{ field.labelAr }}</label>
+                                <textarea v-if="field.type === 'textarea'" v-model="form.content_ar[field.key]" rows="4" class="w-full bg-gray-50 border-none rounded-[16px] px-8 py-5 text-sm font-black shadow-inner focus:ring-2 focus:ring-gray-900 text-gray-900 text-right"></textarea>
+                                <input v-else v-model="form.content_ar[field.key]" type="text" class="w-full bg-gray-50 border-none rounded-[16px] px-8 py-5 text-sm font-black shadow-inner focus:ring-2 focus:ring-gray-900 text-gray-900 text-right">
                             </div>
                         </template>
                     </div>
                 </div>
                 
-                <div class="text-center p-10 bg-slate-50/50 rounded-[40px] border border-dashed border-slate-200">
-                    <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">System Traceability ID: {{ page.id }} | Last Synchronized: {{ new Date(page.updated_at).toLocaleString() }}</p>
+                <div class="text-center p-12 bg-gray-50/50 rounded-[28px] border border-dashed border-gray-200">
+                    <p class="text-[11px] font-black text-gray-400 uppercase tracking-[0.3em] flex items-center justify-center gap-4">
+                        <span>NODE ID: {{ page.id }}</span>
+                        <span class="w-1.5 h-1.5 rounded-full bg-gray-300"></span>
+                        <span>LAST SYNC: {{ new Date(page.updated_at).toLocaleString(cart.language === 'ar' ? 'ar-EG' : 'en-US') }}</span>
+                    </p>
                 </div>
             </form>
         </div>

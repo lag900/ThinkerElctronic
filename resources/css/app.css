@@ -25,31 +25,39 @@
 
 @layer components {
     .btn-primary {
-        @apply inline-flex items-center justify-center gap-2 px-6 py-3 bg-brand-500 text-white font-black text-sm uppercase tracking-widest rounded-xl transition-all duration-300 hover:bg-brand-600 active:scale-95 shadow-lg shadow-brand-500/20 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-soft-red hover:-translate-y-0.5;
+        @apply inline-flex items-center justify-center gap-2 px-8 py-4 bg-brand-500 text-white font-black text-xs uppercase tracking-[0.2em] rounded-[14px] transition-all duration-300 hover:bg-brand-600 active:scale-95 shadow-xl shadow-brand-500/20 disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-0.5;
     }
 
-    .btn-secondary {
-        @apply inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-ink-main border border-border font-black text-sm uppercase tracking-widest rounded-xl transition-all duration-300 hover:bg-surface-50 active:scale-95;
+    .btn-red-gradient {
+        @apply bg-gradient-to-r from-[#ff2e63] to-[#ff4d6d] text-white shadow-lg shadow-brand-500/20 hover:shadow-brand-500/40 transition-all duration-300 active:scale-95 text-xs font-black uppercase tracking-widest rounded-[14px] px-8 py-4;
     }
 
     .glass-card {
-        @apply bg-white/80 backdrop-blur-md border border-border/50 rounded-2xl shadow-premium overflow-hidden transition-all duration-500;
+        @apply bg-white border border-[#ececf2] rounded-[24px] shadow-sm overflow-hidden transition-all duration-500 hover:shadow-md;
     }
 
     .input-premium {
-        @apply w-full px-5 py-4 bg-surface-50 border border-border rounded-xl text-ink-main text-sm font-medium transition-all duration-300 focus:bg-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none;
+        @apply w-full px-6 py-4 bg-[#f8f9fb] border-none rounded-[16px] text-[#1f1f1f] text-sm font-semibold transition-all duration-300 focus:bg-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none shadow-inner;
+    }
+
+    .hover-zoom-container {
+        @apply overflow-hidden relative;
+    }
+
+    .hover-zoom-image {
+        @apply transition-transform duration-[400ms] ease-out;
+    }
+
+    .hover-zoom-container:hover .hover-zoom-image {
+        @apply scale-[1.15];
     }
 
     .product-card-premium {
-        @apply bg-white rounded-2xl border border-border/50 transition-all duration-500 hover:shadow-2xl hover:border-brand-500/30 hover:-translate-y-2 hover:shadow-soft-red;
+        @apply bg-white rounded-[24px] border border-[#ececf2] transition-all duration-500 hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:border-brand-500/30 hover:-translate-y-2;
     }
 
-    .badge-red {
-        @apply bg-gradient-to-r from-brand-500 to-brand-600 text-white shadow-lg shadow-brand-500/30;
-    }
-
-    .badge-glass {
-        @apply bg-white/70 backdrop-blur-md border border-border/50 text-ink-main shadow-sm;
+    .sale-badge {
+        @apply absolute top-4 left-4 z-10 bg-[#ff2e63] text-white text-[10px] font-black px-3 py-1.5 rounded-full shadow-lg shadow-brand-500/20 uppercase tracking-widest;
     }
 }
 
