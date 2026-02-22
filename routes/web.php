@@ -85,6 +85,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/inventory', fn() => Inertia::render('Admin/Inventory'))->name('inventory.index');
         Route::get('/orders', [\App\Http\Controllers\Admin\OrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/{order}', [\App\Http\Controllers\Admin\OrderController::class, 'show'])->name('orders.show');
+        Route::get('/orders/{order}/invoice', [\App\Http\Controllers\Admin\OrderController::class, 'printInvoice'])->name('orders.invoice');
         Route::put('/orders/{order}/status', [\App\Http\Controllers\Admin\OrderController::class, 'updateStatus'])->name('orders.status');
         Route::put('/orders/{order}/items/{item}', [\App\Http\Controllers\Admin\OrderController::class, 'updateItem'])->name('orders.updateItem');
         Route::resource('customers', \App\Http\Controllers\Admin\CustomerController::class);

@@ -64,7 +64,11 @@ class DashboardController extends Controller
         }
         
         $mostActiveCustomer = $topCustomers->first() ?? null;
-        $customersOweMoneyCount = Customer::where('debt', '>', 0)->count();
+        $customersOweMoneyCount = Invoice::where('status', '!=', 'paid')
+            ->whereColumn('amount_paid', '<', 'total')
+            ->whereNotNull('customer_id')
+            ->distinct('customer_id')
+            ->count('customer_id');
         $newCustomersMonthCount = Customer::where('created_at', '>=', $startOfMonth)->count();
 
         $stats = [

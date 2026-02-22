@@ -51,6 +51,12 @@ class OrderController extends Controller
         ]);
     }
 
+    public function printInvoice(Order $order)
+    {
+        $order->load(['customer', 'items.product', 'invoice', 'creator']);
+        return view('admin.invoice.print', compact('order'));
+    }
+
     public function updateStatus(Request $request, Order $order)
     {
         $validated = $request->validate([

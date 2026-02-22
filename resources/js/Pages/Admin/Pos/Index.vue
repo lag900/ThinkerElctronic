@@ -202,7 +202,10 @@ const submitInvoice = async () => {
 };
 
 const printReceipt = () => {
-    window.print();
+    if (lastCompletedInvoice.value && lastCompletedInvoice.value.order) {
+        window.open(route('admin.orders.invoice', lastCompletedInvoice.value.order.id), '_blank');
+        showReceiptModal.value = false;
+    }
 };
 
 watch(searchQuery, searchProducts);
@@ -530,21 +533,4 @@ const paymentMethods = [
   background: #d1d1d1;
 }
 
-@media print {
-    body * {
-        visibility: hidden;
-    }
-    #receipt-area, #receipt-area * {
-        visibility: visible;
-    }
-    #receipt-area {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        background: white !important;
-        border: none !important;
-        padding: 0 !important;
-    }
-}
 </style>
